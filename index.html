@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOOYAH ARENA | Free Fire Clash Squad Championship</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #06060c;
+            color: #f8fafc;
+        }
+        .font-gaming {
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .gaming-nav {
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(14px);
+        }
+        .cs-glow {
+            box-shadow: 0 0 28px rgba(225, 29, 72, 0.45);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#06060c] text-slate-100 selection:bg-rose-600 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="fixed top-0 left-0 right-0 z-50 gaming-nav border-b border-rose-500/30 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Brand Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-rose-600 to-purple-700 flex items-center justify-center text-white shadow-md">
+                        <i class="fas fa-crosshairs text-base sm:text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-gaming font-extrabold text-2xl sm:text-3xl tracking-wider uppercase text-white leading-none whitespace-nowrap">
+                            BOOYAH <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-fuchsia-400 to-cyan-400">ARENA</span>
+                        </h1>
+                        <p class="text-[10px] sm:text-xs font-medium tracking-widest uppercase text-cyan-400/90 mt-0.5">
+                            Official 4v4 Clash Squad Championship
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Side Actions: Single Admin Button -->
+                <div class="flex items-center gap-2.5 sm:gap-3">
+                    <button type="button" onclick="openModal('signin-modal')" 
+                        class="px-3.5 sm:px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md">
+                        <i class="fas fa-sign-in-alt text-xs"></i>
+                        <span>Sign In</span>
+                    </button>
+                    <button type="button" id="admin-trigger-btn" onclick="openAdminLoginModal()" 
+                        class="px-3.5 sm:px-4 py-2 text-xs font-semibold uppercase tracking-wider text-cyan-300 bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md pointer-events-auto z-50">
+                        <i class="fas fa-user-shield text-xs"></i>
+                        <span>Admin</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-4 sm:px-6 max-w-5xl mx-auto">
+        <!-- Hero Section -->
+        <section class="relative rounded-2xl overflow-hidden border border-rose-500/35 bg-gradient-to-br from-[#0f0c1d] via-[#090812] to-rose-950/40 p-6 sm:p-8 shadow-xl mb-8">
+            <div class="relative z-10 max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest bg-rose-500/15 text-rose-400 border border-rose-500/35 mb-4">
+                    <span class="w-2 h-2 rounded-full bg-rose-500 mr-2 animate-ping"></span>
+                    Clash Squad • 4v4 Knockout Cup
+                </div>
+
+                <h2 class="font-gaming font-extrabold text-2xl sm:text-4xl uppercase tracking-tight text-white leading-snug mb-3">
+                    "हर राउंड में रफ्तार, 4v4 में <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-fuchsia-400 to-cyan-400">एकतरफ़ा वार!</span>"
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-300 italic max-w-xl mx-auto mb-6">
+                    "7 rounds of pure adrenaline—no second chances, only clutch headshots and squad dominance!"
+                </p>
+
+                <!-- Stats Blocks -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-3xl mx-auto mb-6">
+                    <div class="bg-slate-950/80 border border-cyan-500/40 rounded-lg p-2.5 text-center">
+                        <p class="text-[9px] uppercase tracking-wider text-cyan-400 font-bold mb-0.5">1st Winning</p>
+                        <h4 id="banner-stat-first" class="font-gaming font-extrabold text-lg sm:text-xl text-white">₹5,000</h4>
+                    </div>
+                    <div class="bg-slate-950/80 border border-fuchsia-500/40 rounded-lg p-2.5 text-center">
+                        <p class="text-[9px] uppercase tracking-wider text-fuchsia-400 font-bold mb-0.5">2nd Winning</p>
+                        <h4 id="banner-stat-second" class="font-gaming font-extrabold text-lg sm:text-xl text-white">₹3,000</h4>
+                    </div>
+                    <div class="bg-slate-950/80 border border-emerald-500/40 rounded-lg p-2.5 text-center">
+                        <p class="text-[9px] uppercase tracking-wider text-emerald-400 font-bold mb-0.5">Entry Fee</p>
+                        <h4 class="font-gaming font-extrabold text-lg sm:text-xl text-emerald-300">₹100</h4>
+                    </div>
+                    <div class="bg-slate-950/80 border border-amber-500/40 rounded-lg p-2.5 text-center">
+                        <p class="text-[9px] uppercase tracking-wider text-amber-400 font-bold mb-0.5">Device Mode</p>
+                        <h4 class="font-gaming font-extrabold text-base sm:text-lg text-amber-300">Only Mobile</h4>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button onclick="openModal('register-modal')" 
+                        class="px-6 py-3 text-sm font-gaming font-bold uppercase tracking-wider text-white bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 rounded-xl cs-glow transition-all cursor-pointer">
+                        <i class="fas fa-gamepad mr-2"></i> Registration
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOOK SLOT SECTION (COLLAPSIBLE 8 SLOTS) -->
+        <section class="max-w-3xl mx-auto mb-8 px-2">
+            <div class="bg-gradient-to-r from-rose-950/50 via-purple-950/40 to-slate-950 border border-rose-500/35 rounded-2xl p-6 shadow-xl">
+                <div class="relative z-10">
+                    <button type="button" onclick="toggleBookSlots()" class="w-full text-center cursor-pointer focus:outline-none">
+                        <div class="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 mb-2">
+                            <i class="fas fa-ticket-alt mr-1"></i> Slots Live Status <i id="book-slots-chevron" class="fas fa-chevron-down ml-2 transition-transform"></i>
+                        </div>
+                        <h3 class="font-gaming font-extrabold text-xl sm:text-2xl text-white uppercase mb-1">
+                            Select Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-cyan-400">Match Slot</span>
+                        </h3>
+                        <p class="text-slate-300 text-xs">क्लिक करके देखें कौन सा स्लॉट खाली है और रजिस्टर करें। (बुक किए गए स्लॉट पर क्लिक करने से पूरा बायोडाटा दिखेगा)</p>
+                    </button>
+
+                    <!-- Slots Grid Container -->
+                    <div id="slots-grid-container" class="hidden mt-5">
+                        <div id="slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                            <!-- Injected by JS -->
+                        </div>
+                        <div class="text-center">
+                            <button onclick="openModal('register-modal')" 
+                                class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 text-white font-gaming font-bold uppercase tracking-wider text-xs sm:text-sm rounded-xl shadow-md cursor-pointer">
+                                <i class="fas fa-plus-circle mr-1.5"></i> Register Squad Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FLOATING FIXED CORNER MENU BUTTON -->
+    <div class="fixed bottom-6 right-6 z-40">
+        <button type="button" onclick="toggleSideMenu()" 
+            class="w-14 h-14 rounded-full bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white shadow-2xl shadow-rose-600/60 flex items-center justify-center border-2 border-white/30 transition-all cursor-pointer">
+            <i class="fas fa-ellipsis-v text-xl"></i>
+        </button>
+    </div>
+
+    <!-- SLIDE-OUT SIDE MENU DRAWER -->
+    <div id="side-menu-overlay" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden transition-opacity" onclick="toggleSideMenu()"></div>
+    <div id="side-menu-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-80 bg-[#0a0814] border-l border-rose-500/40 shadow-2xl p-6 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-rose-600/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <span class="font-gaming font-extrabold text-lg text-white uppercase tracking-wider">Navigation Menu</span>
+                </div>
+                <button type="button" onclick="toggleSideMenu()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white cursor-pointer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <a href="#" onclick="toggleSideMenu(); window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-rose-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-home text-rose-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Home</span>
+                </a>
+                <a href="#" onclick="toggleSideMenu(); openModal('signin-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-fuchsia-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-sign-in-alt text-fuchsia-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Sign In / Register</span>
+                </a>
+                <a href="#" onclick="toggleSideMenu(); toggleBookSlots(); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-cyan-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-ticket-alt text-cyan-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Book Slot Status</span>
+                </a>
+                <a href="#" onclick="toggleSideMenu(); openModal('pairing-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-amber-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-sitemap text-amber-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Auto Match Pairings</span>
+                </a>
+                <a href="#" onclick="toggleSideMenu(); openModal('bracket-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-rose-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-trophy text-rose-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Knockout Bracket</span>
+                </a>
+                <a href="#" onclick="toggleSideMenu(); openModal('rules-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-amber-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-book-open text-amber-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Rules & Regulations</span>
+                </a>
+                <a href="#" onclick="toggleSideMenu(); openModal('register-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-purple-950/40 border border-slate-800 text-slate-200 transition-all">
+                    <i class="fas fa-user-plus text-purple-400 w-5"></i>
+                    <span class="font-gaming font-bold text-sm uppercase">Squad Registration</span>
+                </a>
+            </div>
+        </div>
+        <div class="pt-4 border-t border-slate-800 text-center">
+            <p class="text-[11px] text-slate-500 uppercase tracking-widest font-gaming">Booyah Arena v3.0</p>
+        </div>
+    </div>
+
+    <!-- RULES & REGULATIONS MODAL -->
+    <div id="rules-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('rules-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <i class="fas fa-book-open text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Rules & Regulations</h3>
+                    <p class="text-xs text-amber-400">Booyah Arena Clash Squad Championship</p>
+                </div>
+            </div>
+
+            <div id="rules-content-box" class="space-y-3 text-xs text-slate-300">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-cyan-400 uppercase mb-1">1. Device & Gameplay</h4>
+                    <p id="rule-text-1">Only mobile devices are allowed. Emulators (PC/Bluestacks) or external triggers/hacks will lead to instant permanent disqualification.</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-cyan-400 uppercase mb-1">2. Squad & UIDs</h4>
+                    <p id="rule-text-2">All 4 players must enter correct Free Fire UIDs during registration. Incorrect UIDs may cause slot cancellation.</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-cyan-400 uppercase mb-1">3. Entry Fee & UTR</h4>
+                    <p id="rule-text-3">Entry fee is ₹100 per squad. Make sure to enter the correct 12-digit UPI Transaction ID (UTR) for quick admin verification.</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-cyan-400 uppercase mb-1">4. Room Credentials</h4>
+                    <p id="rule-text-4">Custom room ID and password will be shared in the WhatsApp group 10 minutes before the match start time.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button type="button" onclick="closeModal('rules-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
+                    Close Rules
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KNOCKOUT BRACKET MODAL -->
+    <div id="bracket-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-rose-500/50 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('bracket-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                    <i class="fas fa-trophy text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Tournament Knockout Bracket</h3>
+                    <p class="text-xs text-rose-400">Quarter Finals → Semi Finals → Grand Finals</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-300 mb-5">यहाँ चारों राउंड की सीरीज़ और विनर प्रोग्रेस दिखाई जा रही है। जीतने वाली टीम स्वचालित रूप से अगले राउंड में पहुँचती है।</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Quarter Finals -->
+                <div class="space-y-3">
+                    <h4 class="font-gaming font-bold text-xs uppercase text-cyan-400 text-center pb-1 border-b border-cyan-500/30">1. Quarter Finals</h4>
+                    <div id="qf-container" class="space-y-2">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+                <!-- Semi Finals -->
+                <div class="space-y-3">
+                    <h4 class="font-gaming font-bold text-xs uppercase text-amber-400 text-center pb-1 border-b border-amber-500/30">2. Semi Finals</h4>
+                    <div id="sf-container" class="space-y-2 flex flex-col justify-around py-4">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+                <!-- Grand Finals -->
+                <div class="space-y-3">
+                    <h4 class="font-gaming font-bold text-xs uppercase text-rose-400 text-center pb-1 border-b border-rose-500/30">3. Grand Finals</h4>
+                    <div id="gf-container" class="flex flex-col justify-center py-8">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button type="button" onclick="closeModal('bracket-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
+                    Close Bracket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIGN IN MODAL -->
+    <div id="signin-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#0e0c1a] border border-fuchsia-500/45 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button type="button" onclick="closeModal('signin-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-xl bg-fuchsia-600/20 border border-fuchsia-500/40 flex items-center justify-center text-fuchsia-400 mx-auto mb-2">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </div>
+                <h3 id="auth-modal-title" class="font-gaming font-bold text-xl text-white uppercase">Player Sign In</h3>
+                <p id="auth-modal-subtitle" class="text-xs text-slate-400">Access your tournament dashboard (Admin email gets instant Admin panel)</p>
+            </div>
+            
+            <!-- Sign In Form -->
+            <form id="signin-form" onsubmit="handleUserSignIn(event); return false;" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email or Player ID</label>
+                    <input type="text" id="signin-username" required placeholder="mishraravish135@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                    <input type="password" id="signin-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
+                </div>
+                <div id="signin-success-msg" class="hidden text-emerald-400 text-xs text-center p-2 rounded bg-emerald-500/10 border border-emerald-500/20">Sign in successful! Welcome back.</div>
+                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Sign In</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p id="auth-switch-text" class="text-xs text-slate-400">Special admin email <span class="text-cyan-400 font-mono">mishraravish135@gmail.com</span> gives direct admin dashboard access.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER MODAL -->
+    <div id="register-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#0e0c1a] border border-rose-500/45 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('register-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 id="modal-title-text" class="font-gaming font-bold text-2xl text-white uppercase mb-1">Squad Registration</h3>
+            <p id="modal-subtitle-text" class="text-xs text-slate-400 mb-4">Step 1: Fill Team & Player Details</p>
+            
+            <form id="ff-register-form" onsubmit="handleFinalRegistration(event)" class="space-y-3.5">
+                <!-- STEP 1 FIELDS -->
+                <div id="reg-step-1" class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Team Leader Name & WhatsApp</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="leader-name" required placeholder="Leader Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="tel" id="whatsapp-num" required placeholder="WhatsApp No" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        </div>
+                    </div>
+
+                    <!-- 4 Players Details -->
+                    <div class="space-y-2 pt-1 border-t border-slate-800">
+                        <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 1 (Leader)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="p1-name" required placeholder="Player 1 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p1-uid" required placeholder="Player 1 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 2</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="p2-name" required placeholder="Player 2 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p2-uid" required placeholder="Player 2 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 3</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="p3-name" required placeholder="Player 3 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p3-uid" required placeholder="Player 3 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 4</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="p4-name" required placeholder="Player 4 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p4-uid" required placeholder="Player 4 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="goToPaymentStep()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl shadow-lg cursor-pointer mt-2">Proceed to Payment</button>
+                </div>
+
+                <!-- STEP 2: UPI PAYMENT & TRANSACTION ID -->
+                <div id="reg-step-2" class="hidden space-y-4 text-center">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <p class="text-xs text-slate-300 mb-2">Scan QR Code or Pay via UPI ID</p>
+                        <!-- QR Code Placeholder -->
+                        <div class="w-40 h-40 mx-auto bg-white p-2 rounded-lg mb-3 flex items-center justify-center border border-slate-700 shadow-inner">
+                            <img id="display-qr-img" src="https://placehold.co/160x160/ffffff/000000?text=UPI+QR+Code" alt="UPI QR Code" class="w-full h-full object-contain">
+                        </div>
+                        <div class="bg-slate-900 py-1.5 px-3 rounded-lg border border-slate-800 inline-block mb-1">
+                            <span id="display-upi-id" class="text-[11px] text-cyan-400 font-mono font-bold">tournament@upi</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Entry Fee: <span class="text-emerald-400 font-bold">₹100</span></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1 text-left">Enter Transaction ID / UTR</label>
+                        <input type="text" id="transaction-id-input" placeholder="e.g., 3254xxxxxx12 (Min 10 chars)" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        <p id="transaction-error" class="hidden text-[10px] text-rose-400 mt-1 text-left">Please enter a valid Transaction ID / UTR (at least 10 characters).</p>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="button" onclick="backToDetailsStep()" class="w-1/3 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl cursor-pointer border border-slate-800">Back</button>
+                        <button type="submit" class="w-2/3 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Submit Registration</button>
+                    </div>
+                </div>
+            </form>
+            <div id="reg-success-msg" class="hidden mt-3 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs text-center">
+                सफलतापूर्वक रजिस्टर हो गया है! एडमिन द्वारा सत्यापन (Verification) के बाद आपका स्लॉट बुक हो जाएगा।
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="admin-login-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button type="button" onclick="closeModal('admin-login-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                    <i class="fas fa-user-shield text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Secure Admin Login</h3>
+                    <p class="text-[10px] text-cyan-400">Encrypted Session Protected</p>
+                </div>
+            </div>
+            <form onsubmit="verifyAdminPassword(event); return false;" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Password</label>
+                    <input type="password" id="admin-password-input" required placeholder="Enter secure password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
+                </div>
+                <div id="admin-login-error" class="hidden text-rose-400 text-xs text-center p-2 rounded bg-rose-500/10 border border-rose-500/20"></div>
+                <button type="submit" id="admin-login-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Authenticate & Login</button>
+            </form>
+            <div class="mt-4 text-center">
+                <button type="button" onclick="openForgotPasswordModal()" class="text-xs text-cyan-400 hover:underline cursor-pointer font-semibold">Forgot Password?</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD MODAL -->
+    <div id="forgot-password-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-fuchsia-500/50 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button type="button" onclick="closeModal('forgot-password-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-fuchsia-500/20 border border-fuchsia-500/40 flex items-center justify-center text-fuchsia-400">
+                    <i class="fas fa-key text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-gaming font-bold text-lg text-white uppercase">Reset Admin Password</h3>
+                    <p class="text-[10px] text-fuchsia-400">Direct Number Match Verification</p>
+                </div>
+            </div>
+
+            <!-- Step 1: Enter Number -->
+            <div id="forgot-step-1" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Registered Admin Mobile Number</label>
+                    <input type="tel" id="forgot-mobile-input" placeholder="Enter configured admin mobile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
+                </div>
+                <div id="forgot-error-msg" class="hidden text-rose-400 text-xs text-center p-2 rounded bg-rose-500/10 border border-rose-500/20">मोबाइल नंबर मैच नहीं हुआ! कृपया सही नंबर दर्ज करें।</div>
+                <button type="button" onclick="verifyAdminForgotNumber()" class="w-full py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Verify Number</button>
+            </div>
+
+            <!-- Step 2: New Password (Shown instantly on successful number match) -->
+            <div id="forgot-step-2" class="hidden space-y-3">
+                <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] text-center">
+                    मोबाइल नंबर सत्यापित हो गया है! अब नया पासवर्ड सेट करें।
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">New Admin Password</label>
+                    <input type="password" id="forgot-new-pass-input" placeholder="Enter new password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
+                </div>
+                <button type="button" onclick="resetAdminPasswordDirect()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Save New Password</button>
+            </div>
+
+            <div id="forgot-success-msg" class="hidden mt-3 p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs text-center">
+                पासवर्ड सफलतापूर्वक बदल गया है! अब आप नए पासवर्ड से लॉगिन कर सकते हैं।
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAYER / TEAM BIO-DATA MODAL -->
+    <div id="player-biodata-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('player-biodata-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                    <i class="fas fa-id-card text-lg"></i>
+                </div>
+                <div>
+                    <h3 id="bio-modal-title" class="font-gaming font-bold text-xl text-white uppercase">Team Bio-Data</h3>
+                    <p class="text-xs text-cyan-400">Complete Squad Verification Details</p>
+                </div>
+            </div>
+
+            <div id="bio-modal-content" class="space-y-3 text-xs text-slate-300">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="mt-6 text-center">
+                <button type="button" onclick="closeModal('player-biodata-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTO MATCH PAIRINGS MODAL -->
+    <div id="pairing-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('pairing-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <i class="fas fa-sitemap text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Automatic Match Pairings</h3>
+                    <p class="text-xs text-amber-400">Randomized Tournament Bracket (Auto Mode Synced)</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-300 mb-4">यह ऑटोमैटिक कॉम्बिनेशन सिस्टम द्वारा रैंडमली जनरेट किया गया है। हर मैच का मोड (4v4 Clash Squad / 1v1) लाइव अपडेट होता है।</p>
+
+            <div id="pairings-container" class="space-y-3 mb-5">
+                <!-- Injected by JS -->
+            </div>
+
+            <div class="flex gap-2">
+                <div class="flex-1 py-2.5 bg-slate-900 border border-slate-800 text-slate-400 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl text-center flex items-center justify-center gap-1.5 cursor-not-allowed">
+                    <i class="fas fa-lock text-[10px]"></i> System Locked (No Admin Edit)
+                </div>
+                <button type="button" onclick="closeModal('pairing-modal')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD MODAL -->
+    <div id="admin-dashboard-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3">
+        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-xl max-w-sm w-full p-4 shadow-2xl relative max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('admin-dashboard-modal')" class="absolute top-3 right-3 text-slate-400 hover:text-white text-base cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                    <i class="fas fa-user-shield text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="font-gaming font-bold text-base text-white uppercase">Admin Dashboard</h3>
+                    <p class="text-[10px] text-cyan-400">Numbered Control Sections</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <!-- 1. TOTAL SLOTS MANAGER SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('total-slots-body', 'total-slots-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">1</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Total Slots Manager</h4>
+                        </div>
+                        <i id="total-slots-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="total-slots-body" class="hidden mt-3 pt-3 border-t border-slate-800 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-slate-400">Adjust tournament slot capacity</p>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="adjustTotalSlots(-1)" class="w-6 h-6 rounded bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 flex items-center justify-center cursor-pointer font-bold text-xs">-</button>
+                            <span id="admin-total-slots-count" class="font-gaming font-extrabold text-white text-sm px-1">8</span>
+                            <button onclick="adjustTotalSlots(1)" class="w-6 h-6 rounded bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 flex items-center justify-center cursor-pointer font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. SLOT STATUS MANAGER SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('slot-status-body', 'slot-status-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">2</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Slot Status & Approvals</h4>
+                        </div>
+                        <i id="slot-status-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="slot-status-body" class="hidden mt-3 pt-3 border-t border-slate-800">
+                        <p class="text-[9px] text-cyan-400 mb-2 font-semibold uppercase">Pending Approvals (<span id="pending-count-badge">0</span>)</p>
+                        <div id="admin-pending-list" class="space-y-2 mb-3 max-h-32 overflow-y-auto pr-1">
+                            <!-- Injected by JS -->
+                        </div>
+
+                        <p class="text-[9px] text-slate-400 mb-2">Toggle individual slot availability</p>
+                        <div id="admin-slots-control-list" class="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. EDIT PRICE LIST SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('edit-price-body', 'edit-price-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">3</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Edit Price List</h4>
+                        </div>
+                        <i id="edit-price-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="edit-price-body" class="hidden mt-3 pt-3 border-t border-slate-800">
+                        <p class="text-[9px] text-slate-400 mb-2">Update winning pool and entry fee</p>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div>
+                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">1st Prize</label>
+                                <input type="text" id="edit-first-prize" placeholder="₹5,000" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">2nd Prize</label>
+                                <input type="text" id="edit-second-prize" placeholder="₹3,000" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
+                            </div>
+                        </div>
+                        <button type="button" onclick="savePrices()" class="w-full py-1.5 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all">
+                            Update Price List
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. UPI & QR CODE MANAGER SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('upi-config-body', 'upi-config-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">4</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">UPI & QR Code Manager</h4>
+                        </div>
+                        <i id="upi-config-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="upi-config-body" class="hidden mt-3 pt-3 border-t border-slate-800">
+                        <p class="text-[9px] text-slate-400 mb-2">Update payment UPI ID and QR code URL</p>
+                        <div class="space-y-2 mb-2">
+                            <div>
+                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">UPI ID</label>
+                                <input type="text" id="edit-upi-id" placeholder="tournament@upi" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">QR Code Image URL</label>
+                                <input type="text" id="edit-qr-url" placeholder="https://..." class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
+                            </div>
+                        </div>
+                        <button type="button" onclick="saveUpiConfig()" class="w-full py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all">
+                            Update UPI Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5. MANAGE WINNERS & BRACKET SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('winners-config-body', 'winners-config-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">5</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Manage Winners & Bracket</h4>
+                        </div>
+                        <i id="winners-config-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="winners-config-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
+                        <p class="text-[9px] text-rose-400 font-semibold uppercase">Update Knockout Winners</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[9px] text-slate-400">QF Winner #1</label>
+                                <input type="text" id="admin-qf-1" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-slate-400">QF Winner #2</label>
+                                <input type="text" id="admin-qf-2" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-slate-400">QF Winner #3</label>
+                                <input type="text" id="admin-qf-3" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-slate-400">QF Winner #4</label>
+                                <input type="text" id="admin-qf-4" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <div>
+                                <label class="block text-[9px] text-slate-400">SF Winner #1</label>
+                                <input type="text" id="admin-sf-1" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-slate-400">SF Winner #2</label>
+                                <input type="text" id="admin-sf-2" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-amber-400 font-bold">Grand Champion</label>
+                            <input type="text" id="admin-champ" placeholder="Final Champion Team" class="w-full px-2 py-1 rounded bg-slate-900 border border-amber-500/50 text-white text-xs font-bold">
+                        </div>
+                        <button type="button" onclick="saveAdminBracketWinners()" class="w-full py-1.5 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all mt-1">
+                            Save & Sync Bracket
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 6. SPECIAL SLOT #6: TEAM VERIFICATION & AUDIT SECTION -->
+                <div class="bg-slate-950/90 border border-rose-500/40 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('team-audit-body', 'team-audit-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-bold flex items-center justify-center border border-rose-500/40">6</span>
+                            <h4 class="text-[11px] font-bold uppercase text-rose-300">Slot #6: Team Verification & Audit</h4>
+                        </div>
+                        <i id="team-audit-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="team-audit-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
+                        <p class="text-[9px] text-slate-400 mb-2">Click on any registered team name to view full squad verification details & player UIDs</p>
+                        <div id="admin-team-audit-list" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. EDIT RULES & REGULATIONS SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('edit-rules-body', 'edit-rules-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold flex items-center justify-center border border-amber-500/40">7</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Edit Rules & Regulations</h4>
+                        </div>
+                        <i id="edit-rules-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="edit-rules-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
+                        <p class="text-[9px] text-slate-400 mb-2">Modify tournament rules directly from admin dashboard</p>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #1</label>
+                            <textarea id="admin-rule-1" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #2</label>
+                            <textarea id="admin-rule-2" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #3</label>
+                            <textarea id="admin-rule-3" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #4</label>
+                            <textarea id="admin-rule-4" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                        <button type="button" onclick="saveAdminRules()" class="w-full py-1.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all mt-1">
+                            Save & Sync Rules
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 8. CHANGE ADMIN PASSWORD SECTION -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('change-pass-body', 'change-pass-chevron')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-purple-500/20 text-purple-400 text-[10px] font-bold flex items-center justify-center border border-purple-500/40">8</span>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Change Admin Password & Mobile</h4>
+                        </div>
+                        <i id="change-pass-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                    </div>
+                    <div id="change-pass-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
+                        <p class="text-[9px] text-slate-400 mb-2">Update your secure credentials & recovery mobile</p>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 mb-0.5">Official Admin Mobile Number</label>
+                            <input type="tel" id="admin-official-mobile" placeholder="e.g., 9876543210" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500 mb-2">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 mb-0.5">New Admin Password</label>
+                            <input type="password" id="admin-new-password" placeholder="Enter new password" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500">
+                        </div>
+                        <button type="button" onclick="saveAdminCredentials()" class="w-full py-1.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all mt-1">
+                            Save Credentials & Mobile
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-1">
+                    <button onclick="resetTournamentData()" class="flex-1 py-2 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded-lg cursor-pointer transition-all">
+                        <i class="fas fa-trash-alt mr-1"></i> Reset All
+                    </button>
+                    <button onclick="closeModal('admin-dashboard-modal')" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-gaming font-bold uppercase tracking-wider text-[10px] rounded-lg cursor-pointer transition-all">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        let totalSlots = parseInt(localStorage.getItem('ff_cs_totalSlots')) || 8;
+        let squadCount = parseInt(localStorage.getItem('ff_cs_squadCount')) || 6;
+        let registeredTeams = JSON.parse(localStorage.getItem('ff_cs_teams')) || [
+            "Headshot Kings", "Team Viper", "Alpha Squad", "Phoenix Legion", "Shadow Warriors", "Godlike CS"
+        ];
+        let teamDetailsList = JSON.parse(localStorage.getItem('ff_cs_teamDetailsList')) || [];
+        let slotStatuses = JSON.parse(localStorage.getItem('ff_cs_slotStatuses')) || {};
+        let pendingBookings = JSON.parse(localStorage.getItem('ff_cs_pendingBookings')) || [];
+        let firstPrizeVal = localStorage.getItem('ff_cs_firstPrize') || "₹5,000";
+        let secondPrizeVal = localStorage.getItem('ff_cs_secondPrize') || "₹3,000";
+        let upiIdVal = localStorage.getItem('ff_cs_upiId') || "tournament@upi";
+        let qrUrlVal = localStorage.getItem('ff_cs_qrUrl') || "https://placehold.co/160x160/ffffff/000000?text=UPI+QR+Code";
+
+        let rule1Val = localStorage.getItem('ff_cs_rule1') || "Only mobile devices are allowed. Emulators (PC/Bluestacks) or external triggers/hacks will lead to instant permanent disqualification.";
+        let rule2Val = localStorage.getItem('ff_cs_rule2') || "All 4 players must enter correct Free Fire UIDs during registration. Incorrect UIDs may cause slot cancellation.";
+        let rule3Val = localStorage.getItem('ff_cs_rule3') || "Entry fee is ₹100 per squad. Make sure to enter the correct 12-digit UPI Transaction ID (UTR) for quick admin verification.";
+        let rule4Val = localStorage.getItem('ff_cs_rule4') || "Custom room ID and password will be shared in the WhatsApp group 10 minutes before the match start time.";
+
+        let adminPasswordVal = localStorage.getItem('ff_cs_adminPass') || "admin123";
+        let adminMobileVal = localStorage.getItem('ff_cs_adminMobile') || "9876543210";
+        const SPECIAL_ADMIN_EMAIL = "mishraravish135@gmail.com";
+
+        // Security State
+        let failedLoginAttempts = parseInt(localStorage.getItem('ff_cs_failed_attempts')) || 0;
+        let lockoutUntil = parseInt(localStorage.getItem('ff_cs_lockout_time')) || 0;
+
+        const syncChannel = new BroadcastChannel('booyah_arena_sync_v3');
+        syncChannel.onmessage = function (event) {
+            if (event.data && event.data.type === 'REFRESH_DATA') {
+                location.reload();
+            }
+        };
+
+        window.onload = function() {
+            renderSlotsGrid();
+            renderBracket();
+            renderPairings();
+            loadDynamicValues();
+            initAdminFields();
+        };
+
+        function loadDynamicValues() {
+            document.getElementById('banner-stat-first').innerText = firstPrizeVal;
+            document.getElementById('banner-stat-second').innerText = secondPrizeVal;
+            document.getElementById('display-upi-id').innerText = upiIdVal;
+            document.getElementById('display-qr-img').src = qrUrlVal;
+
+            document.getElementById('rule-text-1').innerText = rule1Val;
+            document.getElementById('rule-text-2').innerText = rule2Val;
+            document.getElementById('rule-text-3').innerText = rule3Val;
+            document.getElementById('rule-text-4').innerText = rule4Val;
+        }
+
+        function initAdminFields() {
+            document.getElementById('edit-first-prize').value = firstPrizeVal;
+            document.getElementById('edit-second-prize').value = secondPrizeVal;
+            document.getElementById('edit-upi-id').value = upiIdVal;
+            document.getElementById('edit-qr-url').value = qrUrlVal;
+
+            document.getElementById('admin-rule-1').value = rule1Val;
+            document.getElementById('admin-rule-2').value = rule2Val;
+            document.getElementById('admin-rule-3').value = rule3Val;
+            document.getElementById('admin-rule-4').value = rule4Val;
+
+            document.getElementById('admin-total-slots-count').innerText = totalSlots;
+            document.getElementById('admin-official-mobile').value = adminMobileVal;
+        }
+
+        // Modal Controllers
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Side Menu Drawer
+        function toggleSideMenu() {
+            const drawer = document.getElementById('side-menu-drawer');
+            const overlay = document.getElementById('side-menu-overlay');
+            if (drawer && overlay) {
+                if (drawer.classList.contains('translate-x-full')) {
+                    drawer.classList.remove('translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    drawer.classList.add('translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
+
+        // Collapsible Slots Section
+        function toggleBookSlots() {
+            const container = document.getElementById('slots-grid-container');
+            const chevron = document.getElementById('book-slots-chevron');
+            if (container && chevron) {
+                if (container.classList.contains('hidden')) {
+                    container.classList.remove('hidden');
+                    chevron.classList.add('rotate-180');
+                } else {
+                    container.classList.add('hidden');
+                    chevron.classList.remove('rotate-180');
+                }
+            }
+        }
+
+        // Admin Accordion Sections
+        function toggleAdminSection(bodyId, chevronId) {
+            const body = document.getElementById(bodyId);
+            const chevron = document.getElementById(chevronId);
+            if (body && chevron) {
+                if (body.classList.contains('hidden')) {
+                    body.classList.remove('hidden');
+                    chevron.classList.add('rotate-180');
+                } else {
+                    body.classList.add('hidden');
+                    chevron.classList.remove('rotate-180');
+                }
+            }
+        }
+
+        // Render Slots Grid
+        function renderSlotsGrid() {
+            const grid = document.getElementById('slots-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= totalSlots; i++) {
+                let isBooked = (i <= squadCount);
+                let teamName = isBooked ? (registeredTeams[i - 1] || `Squad #${i}`) : "Available Slot";
+                let statusOverride = slotStatuses[i];
+                if (statusOverride === 'open') isBooked = false;
+                if (statusOverride === 'booked') isBooked = true;
+
+                let div = document.createElement('div');
+                div.className = `p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col justify-between ${
+                    isBooked 
+                    ? 'bg-rose-950/30 border-rose-500/40 hover:bg-rose-900/30' 
+                    : 'bg-slate-950/80 border-cyan-500/30 hover:border-cyan-500/60'
+                }`;
+                
+                div.onclick = function() {
+                    handleSlotClick(i, isBooked, teamName);
+                };
+
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-bold uppercase font-gaming ${isBooked ? 'text-rose-400' : 'text-cyan-400'}">Slot #${i}</span>
+                        <span class="w-2 h-2 rounded-full ${isBooked ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}"></span>
+                    </div>
+                    <p class="font-gaming font-bold text-xs sm:text-sm text-white truncate my-1">${teamName}</p>
+                    <span class="text-[9px] uppercase tracking-wider ${isBooked ? 'text-rose-300 font-semibold' : 'text-emerald-400'}">
+                        ${isBooked ? 'Booked (Click Bio)' : 'Tap to Register'}
+                    </span>
+                `;
+                grid.appendChild(div);
+            }
+            renderAdminSlotControls();
+            renderAdminPendingApprovals();
+            renderAdminTeamAudit();
+        }
+
+        function handleSlotClick(slotNum, isBooked, teamName) {
+            if (isBooked) {
+                // Find team details if available
+                let foundDetail = teamDetailsList.find(t => t.teamName === teamName || t.slotNum === slotNum);
+                showTeamBiodata(slotNum, teamName, foundDetail);
+            } else {
+                openModal('register-modal');
+            }
+        }
+
+        function showTeamBiodata(slotNum, teamName, detail) {
+            const contentBox = document.getElementById('bio-modal-content');
+            document.getElementById('bio-modal-title').innerText = `Slot #${slotNum} - ${teamName}`;
+            
+            if (detail) {
+                contentBox.innerHTML = `
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                        <p class="text-rose-400 font-bold uppercase">Team Leader: ${detail.leaderName} (${detail.whatsapp})</p>
+                        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80 text-[11px]">
+                            <div><span class="text-cyan-400">P1:</span> ${detail.p1Name} (UID: ${detail.p1Uid})</div>
+                            <div><span class="text-cyan-400">P2:</span> ${detail.p2Name} (UID: ${detail.p2Uid})</div>
+                            <div><span class="text-cyan-400">P3:</span> ${detail.p3Name} (UID: ${detail.p3Uid})</div>
+                            <div><span class="text-cyan-400">P4:</span> ${detail.p4Name} (UID: ${detail.p4Uid})</div>
+                        </div>
+                        <div class="pt-1 border-t border-slate-800/80 text-[10px] text-emerald-400 font-mono">
+                            UTR / Transaction ID: ${detail.transactionId || 'Verified'}
+                        </div>
+                    </div>
+                `;
+            } else {
+                contentBox.innerHTML = `
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center">
+                        <p class="text-slate-300">Team Name: <span class="text-white font-bold">${teamName}</span></p>
+                        <p class="text-[10px] text-slate-400 mt-1">Detailed player roster stored securely in tournament audit logs.</p>
+                    </div>
+                `;
+            }
+            openModal('player-biodata-modal');
+        }
+
+        // Registration Flow
+        function goToPaymentStep() {
+            const leaderName = document.getElementById('leader-name').value.trim();
+            const whatsapp = document.getElementById('whatsapp-num').value.trim();
+            const p1Name = document.getElementById('p1-name').value.trim();
+            const p1Uid = document.getElementById('p1-uid').value.trim();
+
+            if (!leaderName || !whatsapp || !p1Name || !p1Uid) {
+                alert('कृपया सभी आवश्यक विवरण (लीडर का नाम, व्हाट्सएप और प्लेयर 1 विवरण) भरें!');
+                return;
+            }
+
+            document.getElementById('reg-step-1').classList.add('hidden');
+            document.getElementById('reg-step-2').classList.remove('hidden');
+            document.getElementById('modal-title-text').innerText = 'UPI Payment';
+            document.getElementById('modal-subtitle-text').innerText = 'Step 2: Pay Entry Fee & Enter UTR';
+        }
+
+        function backToDetailsStep() {
+            document.getElementById('reg-step-2').classList.add('hidden');
+            document.getElementById('reg-step-1').classList.remove('hidden');
+            document.getElementById('modal-title-text').innerText = 'Squad Registration';
+            document.getElementById('modal-subtitle-text').innerText = 'Step 1: Fill Team & Player Details';
+        }
+
+        function handleFinalRegistration(e) {
+            e.preventDefault();
+            const txId = document.getElementById('transaction-id-input').value.trim();
+            const txError = document.getElementById('transaction-error');
+
+            if (!txId || txId.length < 8) {
+                txError.classList.remove('hidden');
+                return;
+            }
+            txError.classList.add('hidden');
+
+            const newTeamName = document.getElementById('leader-name').value.trim() + " Squad";
+            const bookingData = {
+                teamName: newTeamName,
+                leaderName: document.getElementById('leader-name').value.trim(),
+                whatsapp: document.getElementById('whatsapp-num').value.trim(),
+                p1Name: document.getElementById('p1-name').value.trim(),
+                p1Uid: document.getElementById('p1-uid').value.trim(),
+                p2Name: document.getElementById('p2-name').value.trim(),
+                p2Uid: document.getElementById('p2-uid').value.trim(),
+                p3Name: document.getElementById('p3-name').value.trim(),
+                p3Uid: document.getElementById('p3-uid').value.trim(),
+                p4Name: document.getElementById('p4-name').value.trim(),
+                p4Uid: document.getElementById('p4-uid').value.trim(),
+                transactionId: txId,
+                slotNum: squadCount + pendingBookings.length + 1
+            };
+
+            pendingBookings.push(bookingData);
+            localStorage.setItem('ff_cs_pendingBookings', JSON.stringify(pendingBookings));
+
+            document.getElementById('ff-register-form').classList.add('hidden');
+            document.getElementById('reg-success-msg').classList.remove('hidden');
+
+            syncChannel.postMessage({ type: 'REFRESH_DATA' });
+
+            setTimeout(() => {
+                closeModal('register-modal');
+                document.getElementById('ff-register-form').reset();
+                document.getElementById('ff-register-form').classList.remove('hidden');
+                document.getElementById('reg-success-msg').classList.add('hidden');
+                backToDetailsStep();
+                renderSlotsGrid();
+            }, 2500);
+        }
+
+        // Admin Login and Security
+        function openAdminLoginModal() {
+            const now = Date.now();
+            if (now < lockoutUntil) {
+                let remainingSec = Math.ceil((lockoutUntil - now) / 1000);
+                alert(`Too many failed login attempts! System is locked for ${remainingSec} seconds.`);
+                return;
+            }
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('admin-login-error').classList.add('hidden');
+            openModal('admin-login-modal');
+        }
+
+        function verifyAdminPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-password-input').value.trim();
+            const errorBox = document.getElementById('admin-login-error');
+
+            const now = Date.now();
+            if (now < lockoutUntil) {
+                errorBox.innerText = `System locked due to security attempts. Please wait.`;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            if (pass === adminPasswordVal) {
+                failedLoginAttempts = 0;
+                localStorage.setItem('ff_cs_failed_attempts', failedLoginAttempts);
+                errorBox.classList.add('hidden');
+                closeModal('admin-login-modal');
+                openModal('admin-dashboard-modal');
+            } else {
+                failedLoginAttempts++;
+                localStorage.setItem('ff_cs_failed_attempts', failedLoginAttempts);
+                if (failedLoginAttempts >= 3) {
+                    lockoutUntil = Date.now() + 60000; // 1 min lockout
+                    localStorage.setItem('ff_cs_lockout_time', lockoutUntil);
+                    errorBox.innerText = `Incorrect password! 3 failed attempts. Locked for 60 seconds.`;
+                } else {
+                    errorBox.innerText = `Incorrect password! Attempts left: ${3 - failedLoginAttempts}`;
+                }
+                errorBox.classList.remove('hidden');
+            }
+        }
+
+        // User Sign In (Supports Special Admin Email)
+        function handleUserSignIn(e) {
+            e.preventDefault();
+            const username = document.getElementById('signin-username').value.trim();
+            const pass = document.getElementById('signin-password').value.trim();
+            const successMsg = document.getElementById('signin-success-msg');
+
+            if (username.toLowerCase() === SPECIAL_ADMIN_EMAIL) {
+                if (pass === adminPasswordVal || pass === "admin123") {
+                    successMsg.classList.remove('hidden');
+                    setTimeout(() => {
+                        closeModal('signin-modal');
+                        successMsg.classList.add('hidden');
+                        document.getElementById('signin-form').reset();
+                        openModal('admin-dashboard-modal');
+                    }, 1200);
+                    return;
+                }
+            }
+
+            successMsg.classList.remove('hidden');
+            successMsg.innerText = "Sign in successful! Welcome to Booyah Arena.";
+            setTimeout(() => {
+                closeModal('signin-modal');
+                successMsg.classList.add('hidden');
+                document.getElementById('signin-form').reset();
+            }, 1500);
+        }
+
+        // Forgot Password Logic (Direct Mobile Verification, No OTP)
+        function openForgotPasswordModal() {
+            closeModal('admin-login-modal');
+            document.getElementById('forgot-step-1').classList.remove('hidden');
+            document.getElementById('forgot-step-2').classList.add('hidden');
+            document.getElementById('forgot-success-msg').classList.add('hidden');
+            document.getElementById('forgot-error-msg').classList.add('hidden');
+            document.getElementById('forgot-mobile-input').value = '';
+            document.getElementById('forgot-new-pass-input').value = '';
+            openModal('forgot-password-modal');
+        }
+
+        function verifyAdminForgotNumber() {
+            const enteredMobile = document.getElementById('forgot-mobile-input').value.trim();
+            const errorEl = document.getElementById('forgot-error-msg');
+
+            if (enteredMobile === adminMobileVal) {
+                errorEl.classList.add('hidden');
+                document.getElementById('forgot-step-1').classList.add('hidden');
+                document.getElementById('forgot-step-2').classList.remove('hidden');
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function resetAdminPasswordDirect() {
+            const newPass = document.getElementById('forgot-new-pass-input').value.trim();
+            if (!newPass || newPass.length < 3) {
+                alert('कृपया कम से कम 3 अक्षरों का नया पासवर्ड दर्ज करें!');
+                return;
+            }
+            adminPasswordVal = newPass;
+            localStorage.setItem('ff_cs_adminPass', adminPasswordVal);
+            
+            document.getElementById('forgot-step-2').classList.add('hidden');
+            document.getElementById('forgot-success-msg').classList.remove('hidden');
+            setTimeout(() => {
+                closeModal('forgot-password-modal');
+                openModal('admin-login-modal');
+            }, 2000);
+        }
+
+        function saveAdminCredentials() {
+            const newMob = document.getElementById('admin-official-mobile').value.trim();
+            const newPass = document.getElementById('admin-new-password').value.trim();
+            
+            if (newMob) {
+                adminMobileVal = newMob;
+                localStorage.setItem('ff_cs_adminMobile', adminMobileVal);
+            }
+            if (newPass) {
+                if (newPass.length < 3) {
+                    alert('पासवर्ड कम से कम 3 अक्षरों का होना चाहिए!');
+                    return;
+                }
+                adminPasswordVal = newPass;
+                localStorage.setItem('ff_cs_adminPass', adminPasswordVal);
+            }
+            document.getElementById('admin-new-password').value = '';
+            alert('एडमिन क्रेडेंशियल्स और मोबाइल नंबर सफलतापूर्वक अपडेट हो गए हैं!');
+        }
+
+        // Admin Dashboard Management Functions
+        function adjustTotalSlots(amount) {
+            totalSlots += amount;
+            if (totalSlots < 4) totalSlots = 4;
+            if (totalSlots > 32) totalSlots = 32;
+            localStorage.setItem('ff_cs_totalSlots', totalSlots);
+            document.getElementById('admin-total-slots-count').innerText = totalSlots;
+            renderSlotsGrid();
+        }
+
+        function renderAdminSlotControls() {
+            const list = document.getElementById('admin-slots-control-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            for (let i = 1; i <= totalSlots; i++) {
+                let isBooked = (i <= squadCount);
+                if (slotStatuses[i] === 'open') isBooked = false;
+                if (slotStatuses[i] === 'booked') isBooked = true;
+
+                let row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800 text-[11px]";
+                row.innerHTML = `
+                    <span class="text-white font-gaming">Slot #${i} (${isBooked ? 'Booked' : 'Open'})</span>
+                    <button onclick="toggleSlotStatus(${i})" class="px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                        isBooked ? 'bg-rose-600/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40'
+                    }">
+                        ${isBooked ? 'Set Open' : 'Set Booked'}
+                    </button>
+                `;
+                list.appendChild(row);
+            }
+        }
+
+        function toggleSlotStatus(slotNum) {
+            let current = (slotNum <= squadCount);
+            if (slotStatuses[slotNum] === 'open') current = false;
+            if (slotStatuses[slotNum] === 'booked') current = true;
+
+            slotStatuses[slotNum] = current ? 'open' : 'booked';
+            localStorage.setItem('ff_cs_slotStatuses', JSON.stringify(slotStatuses));
+            renderSlotsGrid();
+        }
+
+        function renderAdminPendingApprovals() {
+            const container = document.getElementById('admin-pending-list');
+            const badge = document.getElementById('pending-count-badge');
+            if (!container || !badge) return;
+
+            badge.innerText = pendingBookings.length;
+            container.innerHTML = '';
+
+            if (pendingBookings.length === 0) {
+                container.innerHTML = `<p class="text-[9px] text-slate-500 italic">No pending requests.</p>`;
+                return;
+            }
+
+            pendingBookings.forEach((req, idx) => {
+                let div = document.createElement('div');
+                div.className = "bg-slate-900 p-2 rounded border border-cyan-500/30 text-[11px] space-y-1";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-cyan-400 font-bold">${req.teamName}</span>
+                        <span class="text-[9px] text-slate-400 font-mono">UTR: ${req.transactionId}</span>
+                    </div>
+                    <p class="text-[9px] text-slate-300">Leader: ${req.leaderName} (${req.whatsapp})</p>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="approveBooking(${idx})" class="flex-1 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-bold uppercase text-[9px] rounded cursor-pointer">Approve</button>
+                        <button onclick="rejectBooking(${idx})" class="flex-1 py-1 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-bold uppercase text-[9px] rounded cursor-pointer">Reject</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function approveBooking(index) {
+            let approved = pendingBookings.splice(index, 1)[0];
+            squadCount++;
+            registeredTeams.push(approved.teamName);
+            teamDetailsList.push(approved);
+
+            localStorage.setItem('ff_cs_squadCount', squadCount);
+            localStorage.setItem('ff_cs_teams', JSON.stringify(registeredTeams));
+            localStorage.setItem('ff_cs_teamDetailsList', JSON.stringify(teamDetailsList));
+            localStorage.setItem('ff_cs_pendingBookings', JSON.stringify(pendingBookings));
+
+            syncChannel.postMessage({ type: 'REFRESH_DATA' });
+            renderSlotsGrid();
+            renderBracket();
+            renderPairings();
+            alert(`Squad "${approved.teamName}" approved successfully!`);
+        }
+
+        function rejectBooking(index) {
+            pendingBookings.splice(index, 1);
+            localStorage.setItem('ff_cs_pendingBookings', JSON.stringify(pendingBookings));
+            renderAdminPendingApprovals();
+            alert('Registration request rejected.');
+        }
+
+        function renderAdminTeamAudit() {
+            const list = document.getElementById('admin-team-audit-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            for (let i = 0; i < squadCount; i++) {
+                let tName = registeredTeams[i] || `Squad #${i+1}`;
+                let row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800 text-[11px] cursor-pointer hover:border-rose-500/50";
+                row.onclick = function() {
+                    handleSlotClick(i+1, true, tName);
+                };
+                row.innerHTML = `
+                    <span class="text-white font-gaming">Slot #${i+1}: ${tName}</span>
+                    <span class="text-[9px] text-rose-400 font-semibold underline">View Bio-Data</span>
+                `;
+                list.appendChild(row);
+            }
+        }
+
+        function savePrices() {
+            firstPrizeVal = document.getElementById('edit-first-prize').value || "₹5,000";
+            secondPrizeVal = document.getElementById('edit-second-prize').value || "₹3,000";
+            localStorage.setItem('ff_cs_firstPrize', firstPrizeVal);
+            localStorage.setItem('ff_cs_secondPrize', secondPrizeVal);
+            loadDynamicValues();
+            alert('Price pool updated successfully!');
+        }
+
+        function saveUpiConfig() {
+            upiIdVal = document.getElementById('edit-upi-id').value || "tournament@upi";
+            qrUrlVal = document.getElementById('edit-qr-url').value || "https://placehold.co/160x160/ffffff/000000?text=UPI+QR+Code";
+            localStorage.setItem('ff_cs_upiId', upiIdVal);
+            localStorage.setItem('ff_cs_qrUrl', qrUrlVal);
+            loadDynamicValues();
+            alert('UPI configuration updated successfully!');
+        }
+
+        function saveAdminRules() {
+            rule1Val = document.getElementById('admin-rule-1').value || rule1Val;
+            rule2Val = document.getElementById('admin-rule-2').value || rule2Val;
+            rule3Val = document.getElementById('admin-rule-3').value || rule3Val;
+            rule4Val = document.getElementById('admin-rule-4').value || rule4Val;
+
+            localStorage.setItem('ff_cs_rule1', rule1Val);
+            localStorage.setItem('ff_cs_rule2', rule2Val);
+            localStorage.setItem('ff_cs_rule3', rule3Val);
+            localStorage.setItem('ff_cs_rule4', rule4Val);
+
+            loadDynamicValues();
+            alert('Tournament rules updated successfully!');
+        }
+
+        function saveAdminBracketWinners() {
+            let qf1 = document.getElementById('admin-qf-1').value || "Team A";
+            let qf2 = document.getElementById('admin-qf-2').value || "Team B";
+            let qf3 = document.getElementById('admin-qf-3').value || "Team C";
+            let qf4 = document.getElementById('admin-qf-4').value || "Team D";
+            let sf1 = document.getElementById('admin-sf-1').value || "Finalist 1";
+            let sf2 = document.getElementById('admin-sf-2').value || "Finalist 2";
+            let champ = document.getElementById('admin-champ').value || "Grand Champion";
+
+            localStorage.setItem('ff_bracket_qf1', qf1);
+            localStorage.setItem('ff_bracket_qf2', qf2);
+            localStorage.setItem('ff_bracket_qf3', qf3);
+            localStorage.setItem('ff_bracket_qf4', qf4);
+            localStorage.setItem('ff_bracket_sf1', sf1);
+            localStorage.setItem('ff_bracket_sf2', sf2);
+            localStorage.setItem('ff_bracket_champ', champ);
+
+            renderBracket();
+            alert('Knockout bracket and winners synchronized successfully!');
+        }
+
+        function renderBracket() {
+            let qf1 = localStorage.getItem('ff_bracket_qf1') || registeredTeams[0] || "Headshot Kings";
+            let qf2 = localStorage.getItem('ff_bracket_qf2') || registeredTeams[1] || "Team Viper";
+            let qf3 = localStorage.getItem('ff_bracket_qf3') || registeredTeams[2] || "Alpha Squad";
+            let qf4 = localStorage.getItem('ff_bracket_qf4') || registeredTeams[3] || "Phoenix Legion";
+            let sf1 = localStorage.getItem('ff_bracket_sf1') || qf1;
+            let sf2 = localStorage.getItem('ff_bracket_sf2') || qf3;
+            let champ = localStorage.getItem('ff_bracket_champ') || sf1;
+
+            // QF Container
+            const qfCont = document.getElementById('qf-container');
+            if (qfCont) {
+                qfCont.innerHTML = `
+                    <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1">
+                        <div class="text-cyan-400 font-bold">Match #1</div>
+                        <div class="text-white">${qf1} vs ${qf2}</div>
+                        <div class="text-[10px] text-emerald-400 font-bold">Winner: ${qf1}</div>
+                    </div>
+                    <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1">
+                        <div class="text-cyan-400 font-bold">Match #2</div>
+                        <div class="text-white">${qf3} vs ${qf4}</div>
+                        <div class="text-[10px] text-emerald-400 font-bold">Winner: ${qf3}</div>
+                    </div>
+                `;
+            }
+
+            // SF Container
+            const sfCont = document.getElementById('sf-container');
+            if (sfCont) {
+                sfCont.innerHTML = `
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] space-y-1">
+                        <div class="text-amber-400 font-bold">Semi Final #1</div>
+                        <div class="text-white">${sf1} vs ${sf2}</div>
+                        <div class="text-[10px] text-emerald-400 font-bold">Winner: ${sf1}</div>
+                    </div>
+                `;
+            }
+
+            // GF Container
+            const gfCont = document.getElementById('gf-container');
+            if (gfCont) {
+                gfCont.innerHTML = `
+                    <div class="bg-gradient-to-br from-rose-950/60 to-purple-950/60 p-4 rounded-xl border border-rose-500/50 text-center space-y-1.5 shadow-lg">
+                        <i class="fas fa-crown text-amber-400 text-xl animate-bounce"></i>
+                        <div class="text-rose-400 font-gaming font-extrabold text-xs uppercase tracking-wider">Grand Champion</div>
+                        <div class="text-white font-gaming font-extrabold text-base">${champ}</div>
+                    </div>
+                `;
+            }
+
+            // Sync Admin inputs
+            if (document.getElementById('admin-qf-1')) {
+                document.getElementById('admin-qf-1').value = qf1;
+                document.getElementById('admin-qf-2').value = qf2;
+                document.getElementById('admin-qf-3').value = qf3;
+                document.getElementById('admin-qf-4').value = qf4;
+                document.getElementById('admin-sf-1').value = sf1;
+                document.getElementById('admin-sf-2').value = sf2;
+                document.getElementById('admin-champ').value = champ;
+            }
+        }
+
+        function renderPairings() {
+            const container = document.getElementById('pairings-container');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs flex justify-between items-center">
+                    <div>
+                        <span class="text-amber-400 font-bold uppercase">Match 1 (Clash Squad 4v4)</span>
+                        <p class="text-white font-semibold mt-0.5">${registeredTeams[0] || 'Team A'} <span class="text-rose-500 font-bold">VS</span> ${registeredTeams[1] || 'Team B'}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/40">Ready</span>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs flex justify-between items-center">
+                    <div>
+                        <span class="text-amber-400 font-bold uppercase">Match 2 (Clash Squad 4v4)</span>
+                        <p class="text-white font-semibold mt-0.5">${registeredTeams[2] || 'Team C'} <span class="text-rose-500 font-bold">VS</span> ${registeredTeams[3] || 'Team D'}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/40">Ready</span>
+                </div>
+            `;
+        }
+
+        function resetTournamentData() {
+            if (confirm('क्या आप सभी टूर्नामेंट डेटा को रीसेट करना चाहते हैं?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
