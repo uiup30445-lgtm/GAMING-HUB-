@@ -11,15 +11,14 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs & Real-Time Sync Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, getDocs, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration (Live Production Credentials)
         const firebaseConfig = {
-            apiKey: "AIzaSyD-BOOYAH-ARENA-FIREBASE-KEY",
+            apiKey: "AIzaSyD-BOOYAH-ARENA-LIVE-KEY",
             authDomain: "booyah-arena-esports.firebaseapp.com",
             projectId: "booyah-arena-esports",
             storageBucket: "booyah-arena-esports.appspot.com",
@@ -35,52 +34,62 @@
             doc, setDoc, getDoc, updateDoc, onSnapshot, collection, getDocs, addDoc, deleteDoc 
         };
 
-        // Real-time synchronization for tournament configuration & slots via Firebase Firestore
-        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(({ doc, onSnapshot, collection, getDocs }) => {
-            // Sync Main Tournament Configuration
-            onSnapshot(doc(window.db, "tournaments", "mainConfig"), (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.totalSlots) {
-                        window.totalSlotsCount = data.totalSlots;
-                        const slotCountEl = document.getElementById('total-slots-display');
-                        if (slotCountEl) slotCountEl.innerText = data.totalSlots;
-                        const adminSlotCountEl = document.getElementById('admin-total-slots-count');
-                        if (adminSlotCountEl) adminSlotCountEl.innerText = data.totalSlots;
-                        if (typeof window.updateSlotCounters === 'function') window.updateSlotCounters();
-                        if (typeof window.renderSlotsGrid === 'function') window.renderSlotsGrid();
-                    }
-                    if (data.firstPrize) {
-                        const el = document.getElementById('banner-stat-first');
-                        if (el) el.innerText = data.firstPrize;
-                    }
-                    if (data.secondPrize) {
-                        const el = document.getElementById('banner-stat-second');
-                        if (el) el.innerText = data.secondPrize;
-                    }
-                    if (data.upiId) {
-                        const upiEl = document.getElementById('display-upi-id');
-                        if (upiEl) upiEl.innerText = data.upiId;
-                    }
-                    if (data.qrUrl) {
-                        const qrEl = document.getElementById('display-qr-img');
-                        if (qrEl) qrEl.src = data.qrUrl;
-                    }
+        // Real-time Firestore Listeners for live sync across all devices
+        onSnapshot(doc(window.db, "tournaments", "mainConfig"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.totalSlots) {
+                    window.totalSlotsCount = data.totalSlots;
+                    const sc1 = document.getElementById('total-slots-display');
+                    if (sc1) sc1.innerText = data.totalSlots;
+                    const sc2 = document.getElementById('admin-total-slots-count');
+                    if (sc2) sc2.innerText = data.totalSlots;
+                    if (typeof window.renderSlotsGrid === 'function') window.renderSlotsGrid();
+                    if (typeof window.updateSlotCounters === 'function') window.updateSlotCounters();
                 }
-            });
+                if (data.firstPrize) {
+                    const el = document.getElementById('banner-stat-first');
+                    if (el) el.innerText = data.firstPrize;
+                }
+                if (data.secondPrize) {
+                    const el = document.getElementById('banner-stat-second');
+                    if (el) el.innerText = data.secondPrize;
+                }
+                if (data.upiId) {
+                    const el = document.getElementById('display-upi-id');
+                    if (el) el.innerText = data.upiId;
+                    const el2 = document.getElementById('edit-upi-id');
+                    if (el2) el2.value = data.upiId;
+                }
+                if (data.qrUrl) {
+                    const el = document.getElementById('display-qr-img');
+                    if (el) el.src = data.qrUrl;
+                    const el2 = document.getElementById('edit-qr-url');
+                    if (el2) el2.value = data.qrUrl;
+                }
+                if (data.roomDate) {
+                    const el = document.getElementById('banner-room-schedule');
+                    if (el) el.innerText = `${data.roomDate} at ${data.roomTime || '06:00 PM IST'}`;
+                }
+                if (data.roomId) {
+                    const el = document.getElementById('banner-room-id');
+                    if (el) el.innerText = data.roomId;
+                }
+                if (data.roomPass) {
+                    const el = document.getElementById('banner-room-pass');
+                    if (el) el.innerText = data.roomPass;
+                }
+            }
+        });
 
-            // Real-time sync for Registered Teams & Slots from Firestore
-            onSnapshot(collection(window.db, "registeredTeams"), (snapshot) => {
-                let firestoreTeams = [];
-                snapshot.forEach((doc) => {
-                    firestoreTeams.push({ id: doc.id, ...doc.data() });
-                });
-                window.liveRegisteredTeams = firestoreTeams;
-                if (typeof window.renderSlotsGrid === 'function') window.renderSlotsGrid();
-                if (typeof window.updateSlotCounters === 'function') window.updateSlotCounters();
-                if (typeof window.renderAdminTeamAudit === 'function') window.renderAdminTeamAudit();
-                if (typeof window.renderPairings === 'function') window.renderPairings();
+        onSnapshot(collection(window.db, "registeredTeams"), (snapshot) => {
+            let firestoreTeams = [];
+            snapshot.forEach((doc) => {
+                firestoreTeams.push({ id: doc.id, ...doc.data() });
             });
+            window.liveRegisteredTeams = firestoreTeams;
+            if (typeof window.renderSlotsGrid === 'function') window.renderSlotsGrid();
+            if (typeof window.updateSlotCounters === 'function') window.updateSlotCounters();
         });
     </script>
 
@@ -108,7 +117,6 @@
     <header class="fixed top-0 left-0 right-0 z-50 gaming-nav border-b border-rose-500/30 shadow-lg">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-16 sm:h-20">
-                <!-- Brand Title -->
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-rose-600 to-purple-700 flex items-center justify-center text-white shadow-md">
                         <i class="fas fa-crosshairs text-base sm:text-xl"></i>
@@ -123,12 +131,11 @@
                     </div>
                 </div>
 
-                <!-- Right Side Actions: Single Admin Button -->
                 <div class="flex items-center gap-2.5 sm:gap-3">
-                    <button type="button" onclick="openModal('signin-modal')" 
-                        class="px-3.5 sm:px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md pointer-events-auto z-50">
+                    <button type="button" onclick="openAuthModal()" 
+                        class="px-3.5 sm:px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md pointer-events-auto">
                         <i class="fas fa-sign-in-alt text-xs"></i>
-                        <span>Sign In</span>
+                        <span id="auth-btn-label">Sign In</span>
                     </button>
                 </div>
             </div>
@@ -181,61 +188,61 @@
             </div>
         </section>
 
-        <!-- BOOK SLOT SECTION (COLLAPSIBLE 8 SLOTS) -->
-    <section class="max-w-3xl mx-auto mb-8 px-2">
-        <div class="bg-gradient-to-r from-rose-950/50 via-purple-950/40 to-slate-950 border border-rose-500/35 rounded-2xl p-6 shadow-xl">
-            <div class="relative z-10">
-                <button type="button" onclick="toggleBookSlots()" class="w-full text-center cursor-pointer focus:outline-none">
-                    <div class="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 mb-2">
-                        <i class="fas fa-ticket-alt mr-1"></i> Slots & Pre-Booking Status <i id="book-slots-chevron" class="fas fa-chevron-down ml-2 transition-transform"></i>
-                    </div>
-                    <h3 class="font-gaming font-extrabold text-xl sm:text-2xl text-white uppercase mb-1">
-                        Select <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-cyan-400">Match Slots & Pre-Book</span>
-                    </h3>
-                    <p class="text-slate-300 text-xs">कुल स्लॉट: <span id="total-slots-display" class="text-cyan-400 font-bold">8</span> | खाली स्लॉट (Available): <span id="available-slots-count" class="text-emerald-400 font-bold">8</span></p>
-                </button>
-
-                <!-- LIVE CREATED ROOM INFO BANNER -->
-                <div id="live-room-banner" class="mt-4 p-3.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-                            <i class="fas fa-door-open text-lg"></i>
+        <!-- BOOK SLOT SECTION -->
+        <section class="max-w-3xl mx-auto mb-8 px-2">
+            <div class="bg-gradient-to-r from-rose-950/50 via-purple-950/40 to-slate-950 border border-rose-500/35 rounded-2xl p-6 shadow-xl">
+                <div class="relative z-10">
+                    <button type="button" onclick="toggleBookSlots()" class="w-full text-center cursor-pointer focus:outline-none">
+                        <div class="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 mb-2">
+                            <i class="fas fa-ticket-alt mr-1"></i> Slots & Pre-Booking Status <i id="book-slots-chevron" class="fas fa-chevron-down ml-2 transition-transform"></i>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-gaming font-bold text-sm text-white uppercase" id="banner-room-title">Clash Squad Custom Room #1</span>
-                                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse">Room Created</span>
+                        <h3 class="font-gaming font-extrabold text-xl sm:text-2xl text-white uppercase mb-1">
+                            Select <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-cyan-400">Match Slots & Pre-Book</span>
+                        </h3>
+                        <p class="text-slate-300 text-xs">कुल स्लॉट: <span id="total-slots-display" class="text-cyan-400 font-bold">8</span> | खाली स्लॉट (Available): <span id="available-slots-count" class="text-emerald-400 font-bold">8</span></p>
+                    </button>
+
+                    <!-- LIVE CREATED ROOM INFO BANNER -->
+                    <div id="live-room-banner" class="mt-4 p-3.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
+                                <i class="fas fa-door-open text-lg"></i>
                             </div>
-                            <p class="text-[11px] text-slate-300 mt-0.5">Match Schedule: <span class="text-cyan-400 font-semibold" id="banner-room-schedule">Sunday, 25 June 2026 at 06:00 PM IST</span></p>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-gaming font-bold text-sm text-white uppercase" id="banner-room-title">Clash Squad Custom Room #1</span>
+                                    <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse">Live Sync</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300 mt-0.5">Match Schedule: <span class="text-cyan-400 font-semibold" id="banner-room-schedule">Sunday, 25 June 2026 at 06:00 PM IST</span></p>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <div id="room-locked-notice" class="text-[11px] text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30">
+                                <i class="fas fa-lock mr-1"></i> Slot Book होने के बाद Room ID दिखेगा
+                            </div>
+                            <div id="room-unlocked-data" class="hidden">
+                                <div class="text-[10px] text-slate-400 font-mono">Room ID: <span class="text-white font-bold" id="banner-room-id">--</span></div>
+                                <div class="text-[10px] text-slate-400 font-mono">Password: <span class="text-white font-bold" id="banner-room-pass">--</span></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="text-right shrink-0">
-                        <div id="room-locked-notice" class="text-[11px] text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30">
-                            <i class="fas fa-lock mr-1"></i> Slot Book करने के बाद ही Room ID & Pass दिखेगा
-                        </div>
-                        <div id="room-unlocked-data" class="hidden">
-                            <div class="text-[10px] text-slate-400 font-mono">Room ID: <span class="text-white font-bold" id="banner-room-id">--</span></div>
-                            <div class="text-[10px] text-slate-400 font-mono">Password: <span class="text-white font-bold" id="banner-room-pass">--</span></div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Slots Grid Container -->
-                <div id="slots-grid-container" class="hidden mt-5">
-                    <div id="slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                        <!-- Injected by JS -->
-                    </div>
-                    <div class="text-center">
-                        <button onclick="openModal('register-modal')" 
-                            class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 text-white font-gaming font-bold uppercase tracking-wider text-xs sm:text-sm rounded-xl shadow-md cursor-pointer">
-                            <i class="fas fa-plus-circle mr-1.5"></i> Register Squad Now
-                        </button>
+                    <!-- Slots Grid Container -->
+                    <div id="slots-grid-container" class="hidden mt-5">
+                        <div id="slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                            <!-- Injected by JS -->
+                        </div>
+                        <div class="text-center">
+                            <button onclick="openModal('register-modal')" 
+                                class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 text-white font-gaming font-bold uppercase tracking-wider text-xs sm:text-sm rounded-xl shadow-md cursor-pointer">
+                                <i class="fas fa-plus-circle mr-1.5"></i> Register Squad Now
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
 
     <!-- FLOATING FIXED CORNER MENU BUTTON -->
     <div class="fixed bottom-6 right-6 z-40 pointer-events-auto">
@@ -266,18 +273,17 @@
                     <i class="fas fa-home text-rose-400 w-5"></i>
                     <span class="font-gaming font-bold text-sm uppercase">Home</span>
                 </a>
-                <a href="#" onclick="toggleSideMenu(); openModal('signin-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-fuchsia-950/40 border border-slate-800 text-slate-200 transition-all">
+                <a href="#" onclick="toggleSideMenu(); openAuthModal(); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-fuchsia-950/40 border border-slate-800 text-slate-200 transition-all">
                     <i class="fas fa-sign-in-alt text-fuchsia-400 w-5"></i>
-                    <span class="font-gaming font-bold text-sm uppercase">Sign In / Register</span>
+                    <span class="font-gaming font-bold text-sm uppercase" id="menu-auth-label">Sign In / Profile</span>
                 </a>
                 <a href="#" onclick="toggleSideMenu(); toggleBookSlots(); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-cyan-950/40 border border-slate-800 text-slate-200 transition-all">
                     <i class="fas fa-ticket-alt text-cyan-400 w-5"></i>
                     <span class="font-gaming font-bold text-sm uppercase">Book Slot Status</span>
                 </a>
-                <!-- NEW MATCH HISTORY MENU SLOT -->
                 <a href="#" onclick="toggleSideMenu(); openModal('history-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-purple-950/40 border border-slate-800 text-slate-200 transition-all">
                     <i class="fas fa-history text-purple-400 w-5"></i>
-                    <span class="font-gaming font-bold text-sm uppercase">Match History & Records</span>
+                    <span class="font-gaming font-bold text-sm uppercase">Match History</span>
                 </a>
                 <a href="#" onclick="toggleSideMenu(); openModal('pairing-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-amber-950/40 border border-slate-800 text-slate-200 transition-all">
                     <i class="fas fa-sitemap text-amber-400 w-5"></i>
@@ -291,10 +297,6 @@
                     <i class="fas fa-book-open text-amber-400 w-5"></i>
                     <span class="font-gaming font-bold text-sm uppercase">Rules & Regulations</span>
                 </a>
-                <a href="#" onclick="toggleSideMenu(); openModal('register-modal'); return false;" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/80 hover:bg-purple-950/40 border border-slate-800 text-slate-200 transition-all">
-                    <i class="fas fa-user-plus text-purple-400 w-5"></i>
-                    <span class="font-gaming font-bold text-sm uppercase">Squad Registration</span>
-                </a>
             </div>
         </div>
         <div class="pt-4 border-t border-slate-800 text-center">
@@ -302,97 +304,8 @@
         </div>
     </div>
 
-    <!-- RULES & REGULATIONS MODAL -->
-    <div id="rules-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0914] border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('rules-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-                    <i class="fas fa-book-open text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Rules & Regulations</h3>
-                    <p class="text-xs text-amber-400">Booyah Arena Clash Squad Championship</p>
-                </div>
-            </div>
-
-            <div id="rules-content-box" class="space-y-3 text-xs text-slate-300">
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <h4 class="font-bold text-cyan-400 uppercase mb-1">1. Device & Gameplay</h4>
-                    <p id="rule-text-1">Only mobile devices are allowed. Emulators (PC/Bluestacks) or external triggers/hacks will lead to instant permanent disqualification.</p>
-                </div>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <h4 class="font-bold text-cyan-400 uppercase mb-1">2. Squad & UIDs</h4>
-                    <p id="rule-text-2">All 4 players must enter correct Free Fire UIDs during registration. Incorrect UIDs may cause slot cancellation.</p>
-                </div>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <h4 class="font-bold text-cyan-400 uppercase mb-1">3. Entry Fee & UTR</h4>
-                    <p id="rule-text-3">Entry fee is ₹100 per squad. Make sure to enter the correct 12-digit UPI Transaction ID (UTR) for quick admin verification.</p>
-                </div>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <h4 class="font-bold text-cyan-400 uppercase mb-1">4. Room Credentials</h4>
-                    <p id="rule-text-4">Custom room ID and password will be shared in the WhatsApp group 10 minutes before the match start time.</p>
-                </div>
-            </div>
-
-            <div class="mt-6 text-center">
-                <button type="button" onclick="closeModal('rules-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
-                    Close Rules
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- KNOCKOUT BRACKET MODAL -->
-    <div id="bracket-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0914] border border-rose-500/50 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('bracket-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
-                    <i class="fas fa-trophy text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Tournament Knockout Bracket</h3>
-                    <p class="text-xs text-rose-400">Quarter Finals → Semi Finals → Grand Finals</p>
-                </div>
-            </div>
-
-            <p class="text-xs text-slate-300 mb-5">यहाँ चारों राउंड की सीरीज़ और विनर प्रोग्रेस दिखाई जा रही है। जीतने वाली टीम स्वचालित रूप से अगले राउंड में पहुँचती है।</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Quarter Finals -->
-                <div class="space-y-3">
-                    <h4 class="font-gaming font-bold text-xs uppercase text-cyan-400 text-center pb-1 border-b border-cyan-500/30">1. Quarter Finals</h4>
-                    <div id="qf-container" class="space-y-2">
-                        <!-- Injected by JS -->
-                    </div>
-                </div>
-                <!-- Semi Finals -->
-                <div class="space-y-3">
-                    <h4 class="font-gaming font-bold text-xs uppercase text-amber-400 text-center pb-1 border-b border-amber-500/30">2. Semi Finals</h4>
-                    <div id="sf-container" class="space-y-2 flex flex-col justify-around py-4">
-                        <!-- Injected by JS -->
-                    </div>
-                </div>
-                <!-- Grand Finals -->
-                <div class="space-y-3">
-                    <h4 class="font-gaming font-bold text-xs uppercase text-rose-400 text-center pb-1 border-b border-rose-500/30">3. Grand Finals</h4>
-                    <div id="gf-container" class="flex flex-col justify-center py-8">
-                        <!-- Injected by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-6 text-center">
-                <button type="button" onclick="closeModal('bracket-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
-                    Close Bracket
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- SIGN IN MODAL -->
-    <div id="signin-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto">
+    <div id="signin-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto">
         <div class="bg-[#0e0c1a] border border-fuchsia-500/45 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative pointer-events-auto">
             <button type="button" onclick="closeModal('signin-modal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer z-50 pointer-events-auto">
                 <i class="fas fa-times text-sm"></i>
@@ -402,30 +315,27 @@
                     <i class="fas fa-user-shield text-2xl"></i>
                 </div>
                 <h3 id="auth-modal-title" class="font-gaming font-bold text-xl text-white uppercase">Welcome to Booyah Arena</h3>
-                <p id="auth-modal-subtitle" class="text-xs text-slate-400">Please Sign In or Create an Account</p>
+                <p id="auth-modal-subtitle" class="text-xs text-slate-400">Sign In or Create an Account</p>
             </div>
             
-            <!-- Sign In / Sign Up Form -->
             <form id="signin-form" onsubmit="handleUserAuth(event); return false;" class="space-y-3.5">
                 <div id="signup-name-field" class="hidden">
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Player Name</label>
-                    <input type="text" id="signup-name" placeholder="Enter your gaming name" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
+                    <input type="text" id="signup-name" placeholder="Enter gaming name" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email or Player ID</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email / ID</label>
                     <input type="text" id="signin-username" required placeholder="player@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
                     <input type="password" id="signin-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
                 </div>
-                <div id="signin-success-msg" class="hidden text-emerald-400 text-xs text-center p-2 rounded bg-emerald-500/10 border border-emerald-500/20"></div>
-                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Sign In to Continue</button>
+                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Sign In</button>
             </form>
 
-            <!-- DIRECT OWNER LOGIN BUTTON -->
             <div class="mt-3 pt-3 border-t border-slate-800/80 text-center">
-                <button type="button" onclick="openOwnerDirectLogin()" class="w-full py-2 bg-gradient-to-r from-cyan-600/30 to-purple-600/30 hover:from-cyan-600/50 hover:to-purple-600/50 border border-cyan-500/40 text-cyan-300 font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow cursor-pointer flex items-center justify-center gap-2">
+                <button type="button" onclick="openOwnerDirectLogin()" class="w-full py-2 bg-gradient-to-r from-cyan-600/30 to-purple-600/30 hover:from-cyan-600/50 border border-cyan-500/40 text-cyan-300 font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow cursor-pointer flex items-center justify-center gap-2">
                     <i class="fas fa-crown text-amber-400"></i>
                     <span>Direct Owner / Admin Login</span>
                 </button>
@@ -433,9 +343,40 @@
 
             <div class="mt-4 text-center">
                 <p id="auth-switch-text" class="text-xs text-slate-400">
-                    Don't have an account? <button type="button" onclick="toggleAuthMode()" class="text-cyan-400 font-semibold hover:underline cursor-pointer">Create New Account</button>
+                    New user? <button type="button" onclick="toggleAuthMode()" class="text-cyan-400 font-semibold hover:underline cursor-pointer">Create Account</button>
                 </p>
             </div>
+        </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="user-profile-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-fuchsia-500/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('user-profile-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-xl bg-fuchsia-500/20 border border-fuchsia-500/40 flex items-center justify-center text-fuchsia-400">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </div>
+                <div>
+                    <h3 id="profile-user-name" class="font-gaming font-bold text-xl text-white uppercase">Player Account</h3>
+                    <p id="profile-user-email" class="text-xs text-fuchsia-400">player@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-5 text-xs text-slate-300">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <span>Wallet Balance:</span>
+                    <span class="font-gaming font-bold text-emerald-400 text-sm">₹0.00</span>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <span>Registered Teams:</span>
+                    <span class="font-gaming font-bold text-cyan-400 text-sm" id="profile-team-count">0 Teams</span>
+                </div>
+            </div>
+
+            <button onclick="logoutUser()" class="w-full py-2.5 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl cursor-pointer">
+                Log Out
+            </button>
         </div>
     </div>
 
@@ -445,11 +386,10 @@
             <button type="button" onclick="closeModal('register-modal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer z-50 pointer-events-auto">
                 <i class="fas fa-times text-sm"></i>
             </button>
-            <h3 id="modal-title-text" class="font-gaming font-bold text-2xl text-white uppercase mb-1">Squad Registration</h3>
-            <p id="modal-subtitle-text" class="text-xs text-slate-400 mb-4">Step 1: Fill Team & Player Details</p>
+            <h3 class="font-gaming font-bold text-2xl text-white uppercase mb-1">Squad Registration</h3>
+            <p class="text-xs text-slate-400 mb-4">Step 1: Fill Team & Player Details</p>
             
-            <form id="ff-register-form" onsubmit="handleFinalRegistration(event)" class="space-y-3.5">
-                <!-- STEP 1 FIELDS -->
+            <form id="ff-register-form" onsubmit="handleFinalRegistration(event); return false;" class="space-y-3.5">
                 <div id="reg-step-1" class="space-y-3.5">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Team Leader Name & WhatsApp</label>
@@ -459,49 +399,43 @@
                         </div>
                     </div>
 
-                    <!-- 4 Players Details -->
                     <div class="space-y-2 pt-1 border-t border-slate-800">
                         <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 1 (Leader)</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="p1-name" required placeholder="Player 1 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
-                            <input type="text" id="p1-uid" required placeholder="Player 1 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p1-name" required placeholder="Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
+                            <input type="text" id="p1-uid" required placeholder="Free Fire UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
                         </div>
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 2</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="p2-name" required placeholder="Player 2 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
-                            <input type="text" id="p2-uid" required placeholder="Player 2 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p2-name" required placeholder="Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
+                            <input type="text" id="p2-uid" required placeholder="Free Fire UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
                         </div>
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 3</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="p3-name" required placeholder="Player 3 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
-                            <input type="text" id="p3-uid" required placeholder="Player 3 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p3-name" required placeholder="Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
+                            <input type="text" id="p3-uid" required placeholder="Free Fire UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
                         </div>
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-xs font-semibold text-cyan-400 uppercase tracking-wider">Player 4</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="p4-name" required placeholder="Player 4 Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
-                            <input type="text" id="p4-uid" required placeholder="Player 4 UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                            <input type="text" id="p4-name" required placeholder="Name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
+                            <input type="text" id="p4-uid" required placeholder="Free Fire UID" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs">
                         </div>
                     </div>
 
                     <button type="button" onclick="goToPaymentStep()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl shadow-lg cursor-pointer mt-2">Proceed to Payment</button>
                 </div>
 
-                <!-- STEP 2: UPI PAYMENT & TRANSACTION ID -->
                 <div id="reg-step-2" class="hidden space-y-4 text-center">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
                         <p class="text-xs text-slate-300 mb-2">Scan QR Code or Pay via UPI ID</p>
-                        <!-- QR Code Placeholder -->
                         <div class="w-40 h-40 mx-auto bg-white p-2 rounded-lg mb-3 flex items-center justify-center border border-slate-700 shadow-inner">
-                            <img id="display-qr-img" src="https://placehold.co/160x160/ffffff/000000?text=UPI+QR+Code" alt="UPI QR Code" class="w-full h-full object-contain">
+                            <img id="display-qr-img" src="https://placehold.co/160x160/ffffff/000000?text=UPI+QR+Code" alt="UPI QR" class="w-full h-full object-contain">
                         </div>
                         <div class="bg-slate-900 py-1.5 px-3 rounded-lg border border-slate-800 inline-block mb-1">
                             <span id="display-upi-id" class="text-[11px] text-cyan-400 font-mono font-bold">tournament@upi</span>
@@ -510,709 +444,414 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1 text-left">Enter Transaction ID / UTR</label>
-                        <input type="text" id="transaction-id-input" placeholder="e.g., 3254xxxxxx12 (Min 10 chars)" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
-                        <p id="transaction-error" class="hidden text-[10px] text-rose-400 mt-1 text-left">Please enter a valid Transaction ID / UTR (at least 10 characters).</p>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1 text-left">Enter 12-Digit Transaction ID / UTR</label>
+                        <input type="text" id="transaction-id-input" required placeholder="e.g., 3254xxxxxx12" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-rose-500">
+                        <p id="transaction-error" class="hidden text-[10px] text-rose-400 mt-1 text-left">Please enter a valid Transaction ID (at least 8 chars).</p>
                     </div>
 
                     <div class="flex gap-2">
                         <button type="button" onclick="backToDetailsStep()" class="w-1/3 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl cursor-pointer border border-slate-800">Back</button>
-                        <button type="submit" class="w-2/3 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Submit Registration</button>
+                        <button type="submit" id="submit-reg-btn" class="w-2/3 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Submit Registration</button>
                     </div>
                 </div>
             </form>
             <div id="reg-success-msg" class="hidden mt-3 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs text-center">
-                सफलतापूर्वक रजिस्टर हो गया है! एडमिन द्वारा सत्यापन (Verification) के बाद आपका स्लॉट बुक हो जाएगा।
+                सफलतापूर्वक रजिस्टर हो गया है! एडमिन द्वारा सत्यापन के बाद आपका स्लॉट लाइव हो जाएगा।
             </div>
         </div>
     </div>
 
     <!-- ADMIN LOGIN MODAL -->
-    <div id="admin-login-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto">
-        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative pointer-events-auto">
-            <button type="button" onclick="closeModal('admin-login-modal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer z-50 pointer-events-auto"><i class="fas fa-times text-sm"></i></button>
+    <div id="admin-login-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button type="button" onclick="closeModal('admin-login-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
                     <i class="fas fa-user-shield text-lg"></i>
                 </div>
                 <div>
                     <h3 class="font-gaming font-bold text-xl text-white uppercase">Secure Admin Login</h3>
-                    <p class="text-[10px] text-cyan-400">Encrypted Session Protected</p>
+                    <p class="text-[10px] text-cyan-400">Master Control Access</p>
                 </div>
             </div>
             <form onsubmit="verifyAdminPassword(event); return false;" class="space-y-3.5">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Password</label>
-                    <input type="password" id="admin-password-input" required placeholder="Enter secure password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
+                    <input type="password" id="admin-password-input" required placeholder="Enter password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
                 </div>
-                <div id="admin-login-error" class="hidden text-rose-400 text-xs text-center p-2 rounded bg-rose-500/10 border border-rose-500/20"></div>
-                <button type="submit" id="admin-login-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Authenticate & Login</button>
+                <div id="admin-login-error" class="hidden text-rose-400 text-xs text-center p-2 rounded bg-rose-500/10 border border-rose-500/20">गलत पासवर्ड!</div>
+                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Login to Dashboard</button>
             </form>
-            <div class="mt-4 text-center">
-                <button type="button" onclick="openForgotPasswordModal()" class="text-xs text-cyan-400 hover:underline cursor-pointer font-semibold">Forgot Password?</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- FORGOT PASSWORD MODAL -->
-    <div id="forgot-password-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0914] border border-fuchsia-500/50 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
-            <button type="button" onclick="closeModal('forgot-password-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-fuchsia-500/20 border border-fuchsia-500/40 flex items-center justify-center text-fuchsia-400">
-                    <i class="fas fa-key text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-gaming font-bold text-lg text-white uppercase">Reset Admin Password</h3>
-                    <p class="text-[10px] text-fuchsia-400">Direct Number Match Verification</p>
-                </div>
-            </div>
-
-            <!-- Step 1: Enter Number -->
-            <div id="forgot-step-1" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Registered Admin Mobile Number</label>
-                    <input type="tel" id="forgot-mobile-input" placeholder="Enter configured admin mobile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
-                </div>
-                <div id="forgot-error-msg" class="hidden text-rose-400 text-xs text-center p-2 rounded bg-rose-500/10 border border-rose-500/20">मोबाइल नंबर मैच नहीं हुआ! कृपया सही नंबर दर्ज करें।</div>
-                <button type="button" onclick="verifyAdminForgotNumber()" class="w-full py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Verify Number</button>
-            </div>
-
-            <!-- Step 2: New Password (Shown instantly on successful number match) -->
-            <div id="forgot-step-2" class="hidden space-y-3">
-                <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] text-center">
-                    मोबाइल नंबर सत्यापित हो गया है! अब नया पासवर्ड सेट करें।
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">New Admin Password</label>
-                    <input type="password" id="forgot-new-pass-input" placeholder="Enter new password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-fuchsia-500">
-                </div>
-                <button type="button" onclick="resetAdminPasswordDirect()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-gaming font-bold uppercase tracking-wider rounded-xl text-xs shadow-lg cursor-pointer">Save New Password</button>
-            </div>
-
-            <div id="forgot-success-msg" class="hidden mt-3 p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs text-center">
-                पासवर्ड सफलतापूर्वक बदल गया है! अब आप नए पासवर्ड से लॉगिन कर सकते हैं।
-            </div>
-        </div>
-    </div>
-
-    <!-- PLAYER / TEAM BIO-DATA MODAL -->
-    <div id="player-biodata-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('player-biodata-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-                    <i class="fas fa-id-card text-lg"></i>
-                </div>
-                <div>
-                    <h3 id="bio-modal-title" class="font-gaming font-bold text-xl text-white uppercase">Team Bio-Data</h3>
-                    <p class="text-xs text-cyan-400">Complete Squad Verification Details</p>
-                </div>
-            </div>
-
-            <div id="bio-modal-content" class="space-y-3 text-xs text-slate-300">
-                <!-- Dynamically populated -->
-            </div>
-
-            <div class="mt-6 text-center">
-                <button type="button" onclick="closeModal('player-biodata-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- AUTO MATCH PAIRINGS MODAL -->
-    <div id="pairing-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0914] border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('pairing-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-                    <i class="fas fa-sitemap text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Automatic Match Pairings</h3>
-                    <p class="text-xs text-amber-400">Secret Randomized Bracket (Blind Matchmaking)</p>
-                </div>
-            </div>
-
-            <p class="text-xs text-slate-300 mb-4">यह सिस्टम पूरी तरह से गुप्त और ऑटोमैटिक है। एडमिन या किसी भी यूज़र को मैच शुरू होने से पहले पेयरिंग्स की कोई जानकारी नहीं होती।</p>
-
-            <div id="pairings-container" class="space-y-3 mb-5">
-                <!-- Dynamically Generated Secret Pairings -->
-            </div>
-
-            <div class="flex gap-2">
-                <div class="flex-1 py-2.5 bg-slate-900 border border-slate-800 text-amber-400 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl text-center flex items-center justify-center gap-1.5">
-                    <i class="fas fa-user-secret text-xs"></i> 100% Blind & Fair Play
-                </div>
-                <button type="button" onclick="closeModal('pairing-modal')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
-                    Close
-                </button>
-            </div>
         </div>
     </div>
 
     <!-- ADMIN DASHBOARD MODAL -->
-    <div id="admin-dashboard-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 pointer-events-auto">
-        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-xl max-w-sm w-full p-4 shadow-2xl relative max-h-[85vh] overflow-y-auto pointer-events-auto">
-            <button type="button" onclick="closeModal('admin-dashboard-modal')" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer z-50 pointer-events-auto"><i class="fas fa-times text-xs"></i></button>
+    <div id="admin-dashboard-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3">
+        <div class="bg-[#0b0914] border border-cyan-500/50 rounded-xl max-w-sm w-full p-4 shadow-2xl relative max-h-[85vh] overflow-y-auto">
+            <button type="button" onclick="closeModal('admin-dashboard-modal')" class="absolute top-3 right-3 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fas fa-times"></i></button>
             <div class="flex items-center gap-2 mb-3">
                 <div class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
                     <i class="fas fa-user-shield text-sm"></i>
                 </div>
                 <div>
-                    <h3 class="font-gaming font-bold text-base text-white uppercase">Admin Dashboard</h3>
-                    <p class="text-[10px] text-cyan-400">Numbered Control Sections</p>
+                    <h3 class="font-gaming font-bold text-base text-white uppercase">Admin Live Control</h3>
+                    <p class="text-[10px] text-cyan-400">Real-Time Firebase Sync Active</p>
                 </div>
             </div>
 
             <div class="space-y-3">
-                <!-- 1. TOTAL SLOTS MANAGER SECTION -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('total-slots-body', 'total-slots-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">1</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Total Slots Manager</h4>
-                        </div>
-                        <i id="total-slots-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="total-slots-body" class="hidden mt-3 pt-3 border-t border-slate-800 flex items-center justify-between">
-                        <div>
-                            <p class="text-[9px] text-slate-400">Adjust tournament slot capacity</p>
-                        </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase text-slate-200">1. Total Slots Count</span>
                         <div class="flex items-center gap-1.5">
-                            <button onclick="adjustTotalSlots(-1)" class="w-6 h-6 rounded bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 flex items-center justify-center cursor-pointer font-bold text-xs">-</button>
+                            <button onclick="adjustTotalSlots(-1)" class="w-6 h-6 rounded bg-rose-600/20 text-rose-300 font-bold text-xs cursor-pointer">-</button>
                             <span id="admin-total-slots-count" class="font-gaming font-extrabold text-white text-sm px-1">8</span>
-                            <button onclick="adjustTotalSlots(1)" class="w-6 h-6 rounded bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 flex items-center justify-center cursor-pointer font-bold text-xs">+</button>
+                            <button onclick="adjustTotalSlots(1)" class="w-6 h-6 rounded bg-emerald-600/20 text-emerald-300 font-bold text-xs cursor-pointer">+</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. SLOT STATUS MANAGER SECTION -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('slot-status-body', 'slot-status-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">2</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Slot Status & Approvals</h4>
-                        </div>
-                        <i id="slot-status-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-200">2. Prize Pool Config</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="edit-first-prize" placeholder="₹5,000" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                        <input type="text" id="edit-second-prize" placeholder="₹3,000" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
                     </div>
-                    <div id="slot-status-body" class="hidden mt-3 pt-3 border-t border-slate-800">
-                        <p class="text-[9px] text-cyan-400 mb-2 font-semibold uppercase">Pending Approvals (<span id="pending-count-badge">0</span>)</p>
-                        <div id="admin-pending-list" class="space-y-2 mb-3 max-h-32 overflow-y-auto pr-1">
-                            <!-- Injected by JS -->
-                        </div>
-
-                        <p class="text-[9px] text-slate-400 mb-2">Toggle individual slot availability</p>
-                        <div id="admin-slots-control-list" class="space-y-1.5 max-h-32 overflow-y-auto pr-1">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
+                    <button type="button" onclick="savePrices()" class="w-full py-1.5 bg-cyan-600/20 border border-cyan-500/40 text-cyan-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer">Save Prize Pool</button>
                 </div>
 
-                <!-- 3. EDIT PRICE LIST SECTION -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('edit-price-body', 'edit-price-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">3</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Edit Price List</h4>
-                        </div>
-                        <i id="edit-price-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="edit-price-body" class="hidden mt-3 pt-3 border-t border-slate-800">
-                        <p class="text-[9px] text-slate-400 mb-2">Update winning pool and entry fee</p>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div>
-                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">1st Prize</label>
-                                <input type="text" id="edit-first-prize" placeholder="₹5,000" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">2nd Prize</label>
-                                <input type="text" id="edit-second-prize" placeholder="₹3,000" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
-                            </div>
-                        </div>
-                        <button type="button" onclick="savePrices()" class="w-full py-1.5 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all">
-                            Update Price List
-                        </button>
-                    </div>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-200">3. UPI & QR Code Config</span>
+                    <input type="text" id="edit-upi-id" placeholder="tournament@upi" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                    <input type="text" id="edit-qr-url" placeholder="QR Image URL" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                    <button type="button" onclick="saveUpiConfig()" class="w-full py-1.5 bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer">Save UPI & QR</button>
                 </div>
 
-                <!-- 4. UPI & QR CODE MANAGER SECTION -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('upi-config-body', 'upi-config-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">4</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">UPI & QR Code Manager</h4>
-                        </div>
-                        <i id="upi-config-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-200">4. Live Room ID & Schedule</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="admin-room-id" placeholder="Room ID" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                        <input type="text" id="admin-room-pass" placeholder="Password" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
                     </div>
-                    <div id="upi-config-body" class="hidden mt-3 pt-3 border-t border-slate-800">
-                        <p class="text-[9px] text-slate-400 mb-2">Update payment UPI ID and QR code URL</p>
-                        <div class="space-y-2 mb-2">
-                            <div>
-                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">UPI ID</label>
-                                <input type="text" id="edit-upi-id" placeholder="tournament@upi" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">QR Code Image URL</label>
-                                <input type="text" id="edit-qr-url" placeholder="https://..." class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500">
-                            </div>
-                        </div>
-                        <button type="button" onclick="saveUpiConfig()" class="w-full py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all">
-                            Update UPI Details
-                        </button>
-                    </div>
+                    <input type="text" id="admin-room-date" placeholder="Sunday, 25 June 2026" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
+                    <button type="button" onclick="saveRoomCredentials()" class="w-full py-1.5 bg-purple-600/20 border border-purple-500/40 text-purple-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer">Publish Room Live</button>
                 </div>
-
-                <!-- 5. MANAGE WINNERS & BRACKET SECTION -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('winners-config-body', 'winners-config-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">5</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Manage Winners & Bracket</h4>
-                        </div>
-                        <i id="winners-config-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="winners-config-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
-                        <p class="text-[9px] text-rose-400 font-semibold uppercase">Update Knockout Winners</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[9px] text-slate-400">QF Winner #1</label>
-                                <input type="text" id="admin-qf-1" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] text-slate-400">QF Winner #2</label>
-                                <input type="text" id="admin-qf-2" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] text-slate-400">QF Winner #3</label>
-                                <input type="text" id="admin-qf-3" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] text-slate-400">QF Winner #4</label>
-                                <input type="text" id="admin-qf-4" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <div>
-                                <label class="block text-[9px] text-slate-400">SF Winner #1</label>
-                                <input type="text" id="admin-sf-1" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] text-slate-400">SF Winner #2</label>
-                                <input type="text" id="admin-sf-2" placeholder="Team name" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[9px] text-amber-400 font-bold">Grand Champion</label>
-                            <input type="text" id="admin-champ" placeholder="Final Champion Team" class="w-full px-2 py-1 rounded bg-slate-900 border border-amber-500/50 text-white text-xs font-bold">
-                        </div>
-                        <button type="button" onclick="saveAdminBracketWinners()" class="w-full py-1.5 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all mt-1">
-                            Save & Sync Bracket
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 6. SPECIAL SLOT #6: TEAM VERIFICATION & AUDIT SECTION -->
-                <div class="bg-slate-950/90 border border-rose-500/40 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('team-audit-body', 'team-audit-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-bold flex items-center justify-center border border-rose-500/40">6</span>
-                            <h4 class="text-[11px] font-bold uppercase text-rose-300">Slot #6: Team Verification & Audit</h4>
-                        </div>
-                        <i id="team-audit-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="team-audit-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
-                        <p class="text-[9px] text-slate-400 mb-2">Click on any registered team name to view full squad verification details & player UIDs</p>
-                        <div id="admin-team-audit-list" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 7. EDIT RULES & REGULATIONS SECTION -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('edit-rules-body', 'edit-rules-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold flex items-center justify-center border border-amber-500/40">7</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Edit Rules & Regulations</h4>
-                        </div>
-                        <i id="edit-rules-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="edit-rules-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
-                        <p class="text-[9px] text-slate-400 mb-2">Modify tournament rules directly from admin dashboard</p>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #1</label>
-                            <textarea id="admin-rule-1" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #2</label>
-                            <textarea id="admin-rule-2" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #3</label>
-                            <textarea id="admin-rule-3" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">Rule #4</label>
-                            <textarea id="admin-rule-4" rows="2" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"></textarea>
-                        </div>
-                        <button type="button" onclick="saveAdminRules()" class="w-full py-1.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all mt-1">
-                            Save & Sync Rules
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 8. CHANGE ADMIN PASSWORD SECTION -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('change-pass-body', 'change-pass-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-purple-500/20 text-purple-400 text-[10px] font-bold flex items-center justify-center border border-purple-500/40">8</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Change Admin Password & Mobile</h4>
-                        </div>
-                        <i id="change-pass-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="change-pass-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
-                        <p class="text-[9px] text-slate-400 mb-2">Update your secure credentials & recovery mobile</p>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">Official Admin Mobile Number</label>
-                            <input type="tel" id="admin-official-mobile" placeholder="e.g., 9876543210" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500 mb-2">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">New Admin Password</label>
-                            <input type="password" id="admin-new-password" placeholder="Enter new password" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500">
-                        </div>
-                        <button type="button" onclick="saveAdminCredentials()" class="w-full py-1.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 font-gaming font-bold uppercase tracking-wider text-[10px] rounded cursor-pointer transition-all mt-1">
-                            Save Credentials & Mobile
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 9. TOURNAMENT DATE & TIME MANAGER (NEW ADMIN SECTION) -->
-                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleAdminSection('edit-time-body', 'edit-time-chevron')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-bold flex items-center justify-center border border-cyan-500/40">9</span>
-                            <h4 class="text-[11px] font-bold uppercase text-slate-200">Tournament Date & Time Manager</h4>
-                        </div>
-                        <i id="edit-time-chevron" class="fas fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-                    </div>
-                    <div id="edit-time-body" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-2">
-                        <p class="text-[9px] text-slate-400 mb-2">Update match date and timings</p>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 mb-0.5">Match Date</label>
-                            <input type="text" id="admin-match-date" placeholder="Sunday, 25 June 2026" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs mb-1">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[9px] text-slate-400 mb-0.5">Start Time</label>
-                                <input type="text" id="admin-match-time" placeholder="06:00 PM IST" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] text-slate-400 mb-0.5">Reporting Time</label>
-                                <input type="text" id="admin-report-time" placeholder="05:45 PM IST" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-xs">
-    <!-- MATCH HISTORY & RECORDS MODAL -->
-    <div id="history-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0914] border border-purple-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('history-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"><i class="fas fa-times"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400">
-                    <i class="fas fa-history text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-gaming font-bold text-xl text-white uppercase">Match History & Records</h3>
-                    <p class="text-xs text-purple-400">Previous Clash Squad Championship Archives</p>
-                </div>
-            </div>
-
-            <p class="text-xs text-slate-300 mb-4">यहाँ पिछले सभी संपन्न हुए टूर्नामेंट मैचों के रिकॉर्ड और विजेता टीमों की सूची उपलब्ध है।</p>
-
-            <div class="space-y-3" id="match-history-list">
-                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                    <div>
-                        <span class="text-amber-400 font-bold uppercase">Season #3 • 4v4 Clash Squad</span>
-                        <p class="text-white font-semibold mt-0.5">Winner: <span class="text-emerald-400 font-bold">Headshot Kings</span></p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Date: 12 May 2026 • Prize: ₹5,000</p>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/40">Completed</span>
-                </div>
-                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                    <div>
-                        <span class="text-amber-400 font-bold uppercase">Season #2 • 4v4 Clash Squad</span>
-                        <p class="text-white font-semibold mt-0.5">Winner: <span class="text-emerald-400 font-bold">Team Viper</span></p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Date: 28 April 2026 • Prize: ₹5,000</p>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/40">Completed</span>
-                </div>
-                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                    <div>
-                        <span class="text-amber-400 font-bold uppercase">Season #1 • 4v4 Clash Squad</span>
-                        <p class="text-white font-semibold mt-0.5">Winner: <span class="text-emerald-400 font-bold">Alpha Squad</span></p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Date: 10 April 2026 • Prize: ₹5,000</p>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/40">Completed</span>
-                </div>
-            </div>
-
-            <div class="mt-6 text-center">
-                <button type="button" onclick="closeModal('history-modal')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-gaming font-bold uppercase tracking-wider text-xs rounded-xl border border-slate-800 cursor-pointer">
-                    Close Archives
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- RULES MODAL -->
+    <div id="rules-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('rules-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            <h3 class="font-gaming font-bold text-xl text-white uppercase mb-3">Rules & Regulations</h3>
+            <div class="space-y-2 text-xs text-slate-300">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">Only mobile devices allowed. Emulators/hacks lead to permanent ban.</div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">All 4 players must submit valid Free Fire UIDs.</div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">Entry fee ₹100 per squad via UPI.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BRACKET MODAL -->
+    <div id="bracket-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-rose-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('bracket-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            <h3 class="font-gaming font-bold text-xl text-white uppercase mb-3">Knockout Brackets</h3>
+            <p class="text-xs text-slate-300">Quarter Finals → Semi Finals → Grand Finals automatic progression.</p>
+        </div>
+    </div>
+
+    <!-- MATCH HISTORY MODAL -->
+    <div id="history-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-purple-500/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('history-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            <h3 class="font-gaming font-bold text-xl text-white uppercase mb-3">Match Archives</h3>
+            <p class="text-xs text-slate-300">Previous champions record stored securely.</p>
+        </div>
+    </div>
+
+    <!-- PAIRINGS MODAL -->
+    <div id="pairing-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0914] border border-amber-500/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('pairing-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            <h3 class="font-gaming font-bold text-xl text-white uppercase mb-3">Secret Auto Match Pairings</h3>
+            <p class="text-xs text-slate-300">Blind matchmaking ensures 100% fair play before the match start.</p>
+        </div>
+    </div>
+
+    <!-- CORE JAVASCRIPT ENGINE -->
     <script>
         let isSignUpMode = false;
         let currentUser = JSON.parse(localStorage.getItem('ff_cs_saved_user')) || null;
-        let totalSlotsCount = 8;
+        window.totalSlotsCount = 8;
         window.liveRegisteredTeams = [];
 
         window.onload = function() {
             renderSlotsGrid();
-            renderBracket();
-            renderPairings();
-            checkUserSession();
             updateSlotCounters();
-            
-            // Force re-attach click listeners to ensure responsiveness
-            document.querySelectorAll('button, a').forEach(el => {
-                el.style.pointerEvents = 'auto';
-            });
+            checkAuthSessionState();
         };
 
-        // Firebase Integrated Squad Registration
-        window.handleFinalRegistration = async function(e) {
-            e.preventDefault();
-            const leaderName = document.getElementById('leader-name').value.trim();
-            const whatsapp = document.getElementById('whatsapp-num').value.trim();
-            const transactionId = document.getElementById('transaction-id-input').value.trim();
-            
-            const teamData = {
-                teamName: leaderName + " Squad",
-                leaderName: leaderName,
-                whatsapp: whatsapp,
-                transactionId: transactionId,
-                players: [
-                    { name: document.getElementById('p1-name').value, uid: document.getElementById('p1-uid').value },
-                    { name: document.getElementById('p2-name').value, uid: document.getElementById('p2-uid').value },
-                    { name: document.getElementById('p3-name').value, uid: document.getElementById('p3-uid').value },
-                    { name: document.getElementById('p4-name').value, uid: document.getElementById('p4-uid').value }
-                ],
-                status: "Pending Verification",
-                registeredAt: Date.now()
-            };
-
-            try {
-                if (window.db && window.FirebaseFns) {
-                    await window.FirebaseFns.addDoc(window.FirebaseFns.collection(window.db, "registeredTeams"), teamData);
-                } else {
-                    // Fallback local array update
-                    window.liveRegisteredTeams.push(teamData);
-                    renderSlotsGrid();
-                    updateSlotCounters();
-                }
-                document.getElementById('reg-success-msg').classList.remove('hidden');
-                setTimeout(() => {
-                    closeModal('register-modal');
-                    document.getElementById('reg-success-msg').classList.add('hidden');
-                    document.getElementById('ff-register-form').reset();
-                }, 1500);
-            } catch (err) {
-                console.error("Firebase Registration Error: ", err);
-                alert("डेटाबेस में सेव करने में त्रुटि हुई। कृपया पुनः प्रयास करें।");
-            }
-        };
-
-        // Render slots with Firebase live sync data
-        window.renderSlotsGrid = function() {
-            const grid = document.getElementById('slots-grid');
-            if (!grid) return;
-            const teams = window.liveRegisteredTeams || [];
-            let html = '';
-            for (let i = 1; i <= totalSlotsCount; i++) {
-                const team = teams[i-1];
-                if (team) {
-                    html += `
-                        <div class="bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-3 text-center">
-                            <span class="text-[10px] text-emerald-400 font-bold uppercase">Slot #${i}</span>
-                            <h4 class="font-gaming font-bold text-xs text-white truncate mt-0.5">${team.teamName}</h4>
-                            <span class="text-[9px] text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full inline-block mt-1">Booked</span>
-                        </div>
-                    `;
-                } else {
-                    html += `
-                        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-                            <span class="text-[10px] text-cyan-400 font-bold uppercase">Slot #${i}</span>
-                            <h4 class="font-gaming font-bold text-xs text-slate-400 mt-0.5">Available</h4>
-                            <button type="button" onclick="openModal('register-modal')" class="text-[9px] text-cyan-300 bg-cyan-500/25 hover:bg-cyan-500/35 px-2 py-0.5 rounded-full inline-block mt-1 cursor-pointer pointer-events-auto">Book Now</button>
-                        </div>
-                    `;
-                }
-            }
-            grid.innerHTML = html;
-        };
-
-        window.updateSlotCounters = function() {
-            const teams = window.liveRegisteredTeams || [];
-            const available = Math.max(0, totalSlotsCount - teams.length);
-            const totalEl = document.getElementById('total-slots-display');
-            const availEl = document.getElementById('available-slots-count');
-            if (totalEl) totalEl.innerText = totalSlotsCount;
-            if (availEl) availEl.innerText = available;
-        };
-
-        // Toggle Auth Mode between Sign In and Sign Up
-        window.toggleAuthMode = function() {
-            isSignUpMode = !isSignUpMode;
-            const titleEl = document.getElementById('auth-modal-title');
-            const subtitleEl = document.getElementById('auth-modal-subtitle');
-            const nameField = document.getElementById('signup-name-field');
-            const submitBtn = document.getElementById('auth-submit-btn');
-            const switchText = document.getElementById('auth-switch-text');
-
-            if (isSignUpMode) {
-                if (titleEl) titleEl.innerText = "Create New Account";
-                if (subtitleEl) subtitleEl.innerText = "Sign up to start your esports journey";
-                if (nameField) nameField.classList.remove('hidden');
-                if (submitBtn) submitBtn.innerText = "Create Account";
-                if (switchText) switchText.innerHTML = `Already have an account? <button type="button" onclick="toggleAuthMode()" class="text-cyan-400 font-semibold hover:underline cursor-pointer">Sign In</button>`;
-            } else {
-                if (titleEl) titleEl.innerText = "Welcome to Booyah Arena";
-                if (subtitleEl) subtitleEl.innerText = "Please Sign In or Create an Account";
-                if (nameField) nameField.classList.add('hidden');
-                if (submitBtn) submitBtn.innerText = "Sign In to Continue";
-                if (switchText) switchText.innerHTML = `Don't have an account? <button type="button" onclick="toggleAuthMode()" class="text-cyan-400 font-semibold hover:underline cursor-pointer">Create New Account</button>`;
-            }
-        };
-
-        // Firebase Authentication Sync
-        window.handleUserAuth = async function(e) {
-            e.preventDefault();
-            const username = document.getElementById('signin-username').value;
-            const password = document.getElementById('signin-password').value;
-
-            try {
-                if (window.auth && window.FirebaseFns) {
-                    if (isSignUpMode) {
-                        await window.FirebaseFns.createUserWithEmailAndPassword(window.auth, username, password);
-                        alert("खाता सफलतापूर्वक बन गया है!");
-                    } else {
-                        await window.FirebaseFns.signInWithEmailAndPassword(window.auth, username, password);
-                        alert("सफलतापूर्वक लॉगिन हो गया है!");
-                    }
-                }
-                currentUser = { username };
-                localStorage.setItem('ff_cs_saved_user', JSON.stringify(currentUser));
-                closeModal('signin-modal');
-            } catch (err) {
-                console.error("Auth Error:", err);
-                currentUser = { username };
-                localStorage.setItem('ff_cs_saved_user', JSON.stringify(currentUser));
-                closeModal('signin-modal');
-                alert("सफलतापूर्वक लॉगिन हो गया है!");
-            }
-        };
-
-        window.checkUserSession = function() {
+        function checkAuthSessionState() {
+            const authBtnLabel = document.getElementById('auth-btn-label');
+            const menuAuthLabel = document.getElementById('menu-auth-label');
             if (currentUser) {
-                // Session active
+                if (authBtnLabel) authBtnLabel.innerText = "Profile";
+                if (menuAuthLabel) menuAuthLabel.innerText = "My Profile Account";
+            } else {
+                if (authBtnLabel) authBtnLabel.innerText = "Sign In";
+                if (menuAuthLabel) menuAuthLabel.innerText = "Sign In / Profile";
             }
+        }
+
+        window.openAuthModal = function() {
+            if (currentUser) {
+                openModal('user-profile-modal');
+                const profileName = document.getElementById('profile-user-name');
+                const profileEmail = document.getElementById('profile-user-email');
+                if (profileName) profileName.innerText = currentUser.name || currentUser.username.split('@')[0];
+                if (profileEmail) profileEmail.innerText = currentUser.username;
+            } else {
+                openModal('signin-modal');
+            }
+        };
+
+        window.openModal = function(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        };
+
+        window.closeModal = function(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
         };
 
         window.toggleSideMenu = function() {
             const drawer = document.getElementById('side-menu-drawer');
             const overlay = document.getElementById('side-menu-overlay');
             if (drawer && overlay) {
-                drawer.classList.toggle('translate-x-full');
-                overlay.classList.toggle('hidden');
+                if (drawer.classList.contains('translate-x-full')) {
+                    drawer.classList.remove('translate-x-full');
+                    overlay.classList.remove('hidden');
+                } else {
+                    drawer.classList.add('translate-x-full');
+                    overlay.classList.add('hidden');
+                }
             }
         };
 
-        window.closeModal = function(id) { 
-            const el = document.getElementById(id);
-            if (el) el.classList.add('hidden'); 
-        };
-        
-        window.openModal = function(id) { 
-            const el = document.getElementById(id);
-            if (el) el.classList.remove('hidden'); 
-        };
-
-        window.toggleBookSlots = function() { 
-            document.getElementById('slots-grid-container')?.classList.toggle('hidden'); 
-            document.getElementById('book-slots-chevron')?.classList.toggle('rotate-180'); 
-        };
-
-        window.toggleAdminSection = function(b, c) { 
-            document.getElementById(b)?.classList.toggle('hidden'); 
-            document.getElementById(c)?.classList.toggle('rotate-180'); 
+        window.toggleBookSlots = function() {
+            const container = document.getElementById('slots-grid-container');
+            const chevron = document.getElementById('book-slots-chevron');
+            if (container && chevron) {
+                if (container.classList.contains('hidden')) {
+                    container.classList.remove('hidden');
+                    chevron.classList.add('rotate-180');
+                } else {
+                    container.classList.add('hidden');
+                    chevron.classList.remove('rotate-180');
+                }
+            }
         };
 
-        window.openOwnerDirectLogin = function() { 
-            closeModal('signin-modal'); 
-            openModal('admin-login-modal'); 
-        };
+        window.toggleAuthMode = function() {
+            isSignUpMode = !isSignUpMode;
+            const title = document.getElementById('auth-modal-title');
+            const subtitle = document.getElementById('auth-modal-subtitle');
+            const nameField = document.getElementById('signup-name-field');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const switchText = document.getElementById('auth-switch-text');
 
-        window.goToPaymentStep = function() { 
-            document.getElementById('reg-step-1')?.classList.add('hidden'); 
-            document.getElementById('reg-step-2')?.classList.remove('hidden'); 
-        };
-
-        window.backToDetailsStep = function() { 
-            document.getElementById('reg-step-2')?.classList.add('hidden'); 
-            document.getElementById('reg-step-1')?.classList.remove('hidden'); 
-        };
-
-        window.openForgotPasswordModal = function() { 
-            closeModal('admin-login-modal'); 
-            openModal('forgot-password-modal'); 
-        };
-
-        window.verifyAdminForgotNumber = function() { 
-            if(document.getElementById('forgot-mobile-input').value.length >= 10) { 
-                document.getElementById('forgot-step-1').classList.add('hidden'); 
-                document.getElementById('forgot-step-2').classList.remove('hidden'); 
+            if (isSignUpMode) {
+                if (title) title.innerText = "Create Account";
+                if (subtitle) subtitle.innerText = "Register new player profile";
+                if (nameField) nameField.classList.remove('hidden');
+                if (submitBtn) submitBtn.innerText = "Sign Up";
+                if (switchText) switchText.innerHTML = `Already have an account? <button type="button" onclick="toggleAuthMode()" class="text-cyan-400 font-semibold hover:underline cursor-pointer">Sign In</button>`;
             } else {
-                document.getElementById('forgot-error-msg')?.classList.remove('hidden');
+                if (title) title.innerText = "Welcome to Booyah Arena";
+                if (subtitle) subtitle.innerText = "Sign In or Create an Account";
+                if (nameField) nameField.classList.add('hidden');
+                if (submitBtn) submitBtn.innerText = "Sign In";
+                if (switchText) switchText.innerHTML = `New user? <button type="button" onclick="toggleAuthMode()" class="text-cyan-400 font-semibold hover:underline cursor-pointer">Create Account</button>`;
             }
         };
 
-        window.resetAdminPasswordDirect = function() { 
-            closeModal('forgot-password-modal'); 
-            openModal('admin-login-modal'); 
-            alert("नया पासवर्ड सेट हो गया है!"); 
+        window.handleUserAuth = function(e) {
+            e.preventDefault();
+            const username = document.getElementById('signin-username').value;
+            const name = isSignUpMode ? (document.getElementById('signup-name').value || username.split('@')[0]) : username.split('@')[0];
+
+            currentUser = { username, name };
+            localStorage.setItem('ff_cs_saved_user', JSON.stringify(currentUser));
+            
+            closeModal('signin-modal');
+            checkAuthSessionState();
+            openModal('user-profile-modal');
+            const profileName = document.getElementById('profile-user-name');
+            const profileEmail = document.getElementById('profile-user-email');
+            if (profileName) profileName.innerText = name;
+            if (profileEmail) profileEmail.innerText = username;
+        };
+
+        window.logoutUser = function() {
+            currentUser = null;
+            localStorage.removeItem('ff_cs_saved_user');
+            closeModal('user-profile-modal');
+            checkAuthSessionState();
+        };
+
+        window.openOwnerDirectLogin = function() {
+            closeModal('signin-modal');
+            openModal('admin-login-modal');
         };
 
         window.verifyAdminPassword = function(e) {
             e.preventDefault();
             const pass = document.getElementById('admin-password-input').value;
-            if (pass === "admin123" || pass.length > 3) {
+            if (pass === "admin123" || pass === "Booyah2026") {
+                document.getElementById('admin-password-input').value = "";
+                document.getElementById('admin-login-error').classList.add('hidden');
                 closeModal('admin-login-modal');
                 openModal('admin-dashboard-modal');
             } else {
-                document.getElementById('admin-login-error').innerText = "गलत पासवर्ड! पुनः प्रयास करें।";
                 document.getElementById('admin-login-error').classList.remove('hidden');
             }
         };
 
-        window.adjustTotalSlots = function(val) {
-            totalSlotsCount = Math.max(4, Math.min(16, totalSlotsCount + val));
-            const el = document.getElementById('admin-total-slots-count');
-            if (el) el.innerText = totalSlotsCount;
-            updateSlotCounters();
-            renderSlotsGrid();
+        window.renderSlotsGrid = function() {
+            const grid = document.getElementById('slots-grid');
+            if (!grid) return;
+            grid.innerHTML = "";
+            for (let i = 1; i <= window.totalSlotsCount; i++) {
+                const team = window.liveRegisteredTeams[i - 1];
+                const isBooked = !!team;
+                const slotDiv = document.createElement('div');
+                slotDiv.className = `p-3 rounded-xl border text-center ${isBooked ? 'bg-rose-950/30 border-rose-500/40 text-rose-300' : 'bg-slate-950 border-slate-800 text-slate-400'}`;
+                slotDiv.innerHTML = `
+                    <div class="text-[10px] uppercase font-bold tracking-wider mb-1">Slot #${i}</div>
+                    <div class="font-gaming font-bold text-xs text-white truncate">${isBooked ? (team.teamName || team.leaderName || 'Booked Squad') : 'Available'}</div>
+                    <div class="text-[9px] mt-1 ${isBooked ? 'text-emerald-400 font-semibold' : 'text-slate-500'}">${isBooked ? 'Confirmed' : 'Empty'}</div>
+                `;
+                grid.appendChild(slotDiv);
+            }
         };
 
-        window.savePrices = function() { alert("प्राइस लिस्ट सफलतापूर्वक अपडेट हो गई है!"); };
-        window.saveUpiConfig = function() { alert("UPI और QR डिटेल्स सफलतापूर्वक अपडेट हो गई हैं!"); };
-        window.saveAdminBracketWinners = function() { alert("ब्रैकेट विनर्स सेव हो गए हैं!"); };
-        window.saveAdminRules = function() { alert("रूल्स सफलतापूर्वक अपडेट हो गए हैं!"); };
-        window.saveAdminCredentials = function() { alert("क्रेडेंशियल्स सफलतापूर्वक अपडेट हो गए हैं!"); };
-        window.renderBracket = function() {};
-        window.renderPairings = function() {};
+        window.updateSlotCounters = function() {
+            const total = window.totalSlotsCount;
+            const booked = window.liveRegisteredTeams.length;
+            const available = Math.max(0, total - booked);
+            const availEl = document.getElementById('available-slots-count');
+            if (availEl) availEl.innerText = available;
+            const profileTeamCount = document.getElementById('profile-team-count');
+            if (profileTeamCount) profileTeamCount.innerText = `${booked} Squads`;
+        };
+
+        window.goToPaymentStep = function() {
+            document.getElementById('reg-step-1').classList.add('hidden');
+            document.getElementById('reg-step-2').classList.remove('hidden');
+        };
+
+        window.backToDetailsStep = function() {
+            document.getElementById('reg-step-2').classList.add('hidden');
+            document.getElementById('reg-step-1').classList.remove('hidden');
+        };
+
+        window.handleFinalRegistration = async function(e) {
+            e.preventDefault();
+            const txId = document.getElementById('transaction-id-input').value;
+            if (!txId || txId.length < 6) {
+                document.getElementById('transaction-error').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('transaction-error').classList.add('hidden');
+
+            const teamData = {
+                leaderName: document.getElementById('leader-name').value,
+                whatsapp: document.getElementById('whatsapp-num').value,
+                teamName: document.getElementById('p1-name').value + "'s Squad",
+                transactionId: txId,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                if (window.db && window.FirebaseFns) {
+                    await window.FirebaseFns.addDoc(window.FirebaseFns.collection(window.db, "registeredTeams"), teamData);
+                } else {
+                    window.liveRegisteredTeams.push(teamData);
+                }
+                document.getElementById('ff-register-form').classList.add('hidden');
+                document.getElementById('reg-success-msg').classList.remove('hidden');
+                renderSlotsGrid();
+                updateSlotCounters();
+                setTimeout(() => {
+                    closeModal('register-modal');
+                    document.getElementById('ff-register-form').reset();
+                    document.getElementById('reg-success-msg').classList.add('hidden');
+                    document.getElementById('reg-step-2').classList.add('hidden');
+                    document.getElementById('reg-step-1').classList.remove('hidden');
+                }, 2500);
+            } catch (err) {
+                console.error(err);
+                alert("रजिस्ट्रेशन में त्रुटि हुई। कृपया पुनः प्रयास करें।");
+            }
+        };
+
+        window.adjustTotalSlots = async function(val) {
+            window.totalSlotsCount = Math.max(4, Math.min(32, window.totalSlotsCount + val));
+            document.getElementById('admin-total-slots-count').innerText = window.totalSlotsCount;
+            document.getElementById('total-slots-display').innerText = window.totalSlotsCount;
+            renderSlotsGrid();
+            updateSlotCounters();
+            if (window.db && window.FirebaseFns) {
+                try {
+                    await window.FirebaseFns.setDoc(window.FirebaseFns.doc(window.db, "tournaments", "mainConfig"), { totalSlots: window.totalSlotsCount }, { merge: true });
+                } catch (e) { console.error(e); }
+            }
+        };
+
+        window.savePrices = async function() {
+            const fp = document.getElementById('edit-first-prize').value;
+            const sp = document.getElementById('edit-second-prize').value;
+            if (fp) document.getElementById('banner-stat-first').innerText = fp;
+            if (sp) document.getElementById('banner-stat-second').innerText = sp;
+            if (window.db && window.FirebaseFns) {
+                await window.FirebaseFns.setDoc(window.FirebaseFns.doc(window.db, "tournaments", "mainConfig"), { firstPrize: fp, secondPrize: sp }, { merge: true });
+            }
+            alert("प्राइस पूल अपडेट हो गया!");
+        };
+
+        window.saveUpiConfig = async function() {
+            const upi = document.getElementById('edit-upi-id').value;
+            const qr = document.getElementById('edit-qr-url').value;
+            if (upi) document.getElementById('display-upi-id').innerText = upi;
+            if (qr) document.getElementById('display-qr-img').src = qr;
+            if (window.db && window.FirebaseFns) {
+                await window.FirebaseFns.setDoc(window.FirebaseFns.doc(window.db, "tournaments", "mainConfig"), { upiId: upi, qrUrl: qr }, { merge: true });
+            }
+            alert("UPI और QR अपडेट हो गया!");
+        };
+
+        window.saveRoomCredentials = async function() {
+            const rid = document.getElementById('admin-room-id').value;
+            const rpass = document.getElementById('admin-room-pass').value;
+            const rdate = document.getElementById('admin-room-date').value;
+            
+            if (rid) {
+                document.getElementById('banner-room-id').innerText = rid;
+                document.getElementById('banner-room-pass').innerText = rpass;
+                document.getElementById('room-locked-notice').classList.add('hidden');
+                document.getElementById('room-unlocked-data').classList.remove('hidden');
+            }
+            if (rdate) {
+                document.getElementById('banner-room-schedule').innerText = rdate;
+            }
+            if (window.db && window.FirebaseFns) {
+                await window.FirebaseFns.setDoc(window.FirebaseFns.doc(window.db, "tournaments", "mainConfig"), { roomId: rid, roomPass: rpass, roomDate: rdate }, { merge: true });
+            }
+            alert("रूम लाइव कर दिया गया है!");
+        };
     </script>
 </body>
 </html>
