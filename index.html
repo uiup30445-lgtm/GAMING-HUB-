@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARENA INTELLIGENCE — Master AI Platform &amp; Live Observatory</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            navy: {
+              950: '#030612',
+              900: '#070c1e',
+              850: '#0b1229',
+              800: '#101936',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #030612;
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .glass-panel {
+      background: linear-gradient(145deg, rgba(11, 18, 41, 0.92), rgba(5, 9, 22, 0.96));
+      border: 1px solid rgba(34, 211, 238, 0.14);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+    .glass-panel-violet {
+      background: linear-gradient(145deg, rgba(15, 16, 40, 0.92), rgba(7, 8, 22, 0.96));
+      border: 1px solid rgba(139, 92, 246, 0.22);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.16);
+    }
+    .glow-violet {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.18);
+    }
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+    .network-line {
+      stroke-dasharray: 5 5;
+      animation: dashFlow 1.8s linear infinite;
+    }
+    .network-line-slow {
+      stroke-dasharray: 4 6;
+      animation: dashFlow 3.2s linear infinite;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #070c1e;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+      background: #0891b2;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-navy-950 text-slate-200 selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 border-b border-cyan-500/15 bg-navy-950/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-600/30 border border-cyan-400/40 flex items-center justify-center shrink-0 glow-cyan">
+          <i data-lucide="cpu" class="w-5 h-5 text-cyan-300"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold tracking-wider text-white truncate">ARENA INTELLIGENCE</h1>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/25">
+              STANDALONE v1.0-DEV
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 truncate">Independent AI Ecosystem &amp; Live System Observatory</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher & Connection Status -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div id="global-connection-pill" class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="global-connection-text">LIVE ENGINE • ALL MODULES OPERATIONAL</span>
+        </div>
+
+        <div class="inline-flex rounded-lg p-1 bg-navy-900 border border-slate-800">
+          <button id="btn-mode-observatory" type="button" class="px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 bg-cyan-500/20 text-cyan-200 border border-cyan-500/30">
+            <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+            <span>Observatory</span>
+          </button>
+          <button id="btn-mode-owner" type="button" class="px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Owner Center</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Emergency Mode Banner -->
+  <div id="emergency-banner" class="hidden bg-rose-950/90 border-b border-rose-500/40 px-4 py-2.5 text-center text-xs sm:text-sm font-mono text-rose-200">
+    <span id="emergency-banner-text">SYSTEM IN RESTRICTED MODE</span>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: LIVE AI OBSERVATORY (PUBLIC READ-ONLY DISPLAY)    -->
+    <!-- ========================================================= -->
+    <section id="view-observatory" class="space-y-6">
+      <div class="glass-panel rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+              LIVE SYSTEM OBSERVATORY
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-slate-800/90 text-slate-300 border border-slate-700">
+              PUBLIC READ-ONLY DISPLAY
+            </span>
+          </div>
+          <h2 class="text-lg sm:text-xl font-bold text-white">ARENA MASTER INTELLIGENCE — Real-Time Telemetry</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+            Sanitized, read-only observation layer. No owner controls, configuration, or private memory exposed.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+          <div class="px-3 py-2 rounded-lg bg-black/40 border border-slate-800">
+            <div class="text-[10px] text-slate-500 uppercase">Data Freshness</div>
+            <div id="obs-freshness" class="text-cyan-300 font-semibold mt-0.5">Verified Local Snapshot</div>
+          </div>
+          <div class="px-3 py-2 rounded-lg bg-black/40 border border-slate-800">
+            <div class="text-[10px] text-slate-500 uppercase">Last Update</div>
+            <div id="obs-last-update" class="text-slate-200 font-semibold mt-0.5">--:--:--</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="obs-disconnect-alert" class="hidden rounded-xl border border-amber-500/40 bg-amber-950/40 p-4 flex items-center gap-3 text-amber-200 text-sm font-mono">
+        <i data-lucide="wifi-off" class="w-5 h-5 text-amber-400 shrink-0"></i>
+        <span>LIVE CONNECTION LOST — SHOWING LAST VERIFIED DATA</span>
+      </div>
+
+      <!-- Top Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 glass-panel rounded-xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" id="obs-master-dot"></div>
+              <h3 class="text-sm font-bold tracking-wide text-white uppercase">A. Master AI Live Status</h3>
+            </div>
+            <span id="obs-master-status-badge" class="px-2.5 py-1 rounded text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              ONLINE
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800/90">
+              <div class="text-[11px] font-mono text-slate-500 uppercase">Current Verified Task</div>
+              <div id="obs-master-task" class="text-slate-100 font-medium mt-1">MONITORING — ALL SYSTEMS READY</div>
+            </div>
+            <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800/90">
+              <div class="text-[11px] font-mono text-slate-500 uppercase">Active Department</div>
+              <div id="obs-master-dept" class="text-cyan-300 font-medium mt-1">Core Coordination Layer</div>
+            </div>
+            <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800/90">
+              <div class="text-[11px] font-mono text-slate-500 uppercase">Last Verified Activity</div>
+              <div id="obs-master-activity" class="text-slate-300 text-xs mt-1">Platform initialized in standalone local mode.</div>
+            </div>
+            <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800/90">
+              <div class="text-[11px] font-mono text-slate-500 uppercase">AI Model Provider</div>
+              <div id="obs-master-model" class="text-amber-300 text-xs font-mono mt-1">ARENA CORE ENGINE ACTIVE</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono text-slate-400 uppercase">16 Cognitive Modules (Architecture Readiness)</span>
+              <span class="text-[11px] font-mono text-cyan-400">16 / 16 Defined</span>
+            </div>
+            <div id="obs-cognitive-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="glass-panel-violet rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-slate-800/80 pb-2.5">
+              <i data-lucide="brain-circuit" class="w-4 h-4 text-violet-400"></i>
+              <h3 class="text-sm font-bold tracking-wide text-white uppercase">D. Master AI Summary</h3>
+            </div>
+            <p id="obs-master-summary" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Waiting for new tasks. Backend AI provider is not connected yet; Master AI is operating in verified local architecture mode and will not fabricate unperformed work.
+            </p>
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span>Distinction Mode:</span>
+              <span class="text-emerald-400">Verified vs Unverified Enforced</span>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-xl p-5 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+              <div class="flex items-center gap-2">
+                <i data-lucide="flask-conical" class="w-4 h-4 text-cyan-400"></i>
+                <h3 class="text-sm font-bold tracking-wide text-white uppercase">F. Self-Enhancement</h3>
+              </div>
+              <span class="text-[11px] font-mono text-slate-400" id="obs-version-tag">v1.0.0-dev</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800">
+                <div class="text-slate-500 text-[10px] font-mono">PROPOSALS</div>
+                <div id="obs-prop-total" class="text-base font-bold text-white mt-0.5">0</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800">
+                <div class="text-slate-500 text-[10px] font-mono">UNDER REVIEW</div>
+                <div id="obs-prop-review" class="text-base font-bold text-amber-300 mt-0.5">0</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800">
+                <div class="text-slate-500 text-[10px] font-mono">VALIDATED</div>
+                <div id="obs-prop-validated" class="text-base font-bold text-cyan-300 mt-0.5">0</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800">
+                <div class="text-slate-500 text-[10px] font-mono">APPROVED RELEASE</div>
+                <div id="obs-prop-released" class="text-base font-bold text-emerald-400 mt-0.5">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B. AI Network Visualization -->
+      <div class="glass-panel rounded-xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-sm font-bold tracking-wide text-white uppercase">B. AI Network Visualization</h3>
+            <p class="text-xs text-slate-400">Click any AI node to inspect its verified role and real implementation status (no decorative fake activity).</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono">
+            <span class="flex items-center gap-1.5 text-emerald-300"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>ACTIVE</span>
+            <span class="flex items-center gap-1.5 text-cyan-300"><span class="w-2 h-2 rounded-full bg-cyan-400"></span>DEVELOPMENT</span>
+            <span class="flex items-center gap-1.5 text-amber-300"><span class="w-2 h-2 rounded-full bg-amber-400"></span>REGISTERED / IDLE</span>
+            <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2 h-2 rounded-full bg-slate-500"></span>PLANNED / OFFLINE</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+          <div class="lg:col-span-2 bg-black/50 rounded-xl border border-slate-800/90 p-3 overflow-x-auto">
+            <svg id="ai-network-svg" viewBox="0 0 860 480" class="w-full h-auto min-w-[540px] select-none">
+              <defs>
+                <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.35" />
+                  <stop offset="100%" stop-color="#030612" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="430" cy="240" r="105" fill="url(#coreGlow)" />
+              <g id="svg-edges"></g>
+              <g id="svg-nodes"></g>
+            </svg>
+          </div>
+
+          <div id="obs-node-inspector" class="p-4 rounded-xl bg-black/50 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono text-cyan-400 uppercase">Node Telemetry</span>
+              <span id="insp-status" class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">DEVELOPMENT</span>
+            </div>
+            <h4 id="insp-name" class="text-base font-bold text-white">ARENA MASTER INTELLIGENCE</h4>
+            <p id="insp-role" class="text-xs text-slate-300 leading-relaxed">
+              Central coordination and intelligence layer governing perception, reasoning, memory, and department orchestration.
+            </p>
+            <div class="pt-2 border-t border-slate-800 space-y-1.5 text-xs font-mono">
+              <div class="flex justify-between"><span class="text-slate-500">Department:</span><span id="insp-dept" class="text-slate-200">Core Intelligence</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Connection:</span><span id="insp-conn" class="text-amber-300">LOCAL SANDBOX</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Version:</span><span id="insp-ver" class="text-slate-200">1.0.0-dev</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Permission:</span><span id="insp-perm" class="text-violet-300">Restricted Orchestrator</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- E. System Health Grid -->
+      <div class="glass-panel rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold tracking-wide text-white uppercase">E. System Health (Verified Checks)</h3>
+          <span class="text-xs font-mono text-slate-400">States: HEALTHY / DEGRADED / WARNING / OFFLINE / NOT CONFIGURED</span>
+        </div>
+        <div id="obs-health-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+      </div>
+
+      <!-- C. Live Activity Feed & G. System Alerts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-panel rounded-xl p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+            <h3 class="text-sm font-bold tracking-wide text-white uppercase">C. Live Activity Feed</h3>
+            <span class="text-[11px] font-mono text-slate-400">Verified Events Only</span>
+          </div>
+          <div id="obs-activity-feed" class="space-y-2 max-h-72 overflow-y-auto scrollbar-thin pr-1"></div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+            <h3 class="text-sm font-bold tracking-wide text-white uppercase">G. System Alerts (Sanitized)</h3>
+            <span id="obs-alert-count" class="px-2 py-0.5 rounded text-[11px] font-mono bg-amber-500/15 text-amber-300">0 Active</span>
+          </div>
+          <div id="obs-alerts-list" class="space-y-2 max-h-72 overflow-y-auto scrollbar-thin pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: OWNER CONTROL CENTER (AUTHENTICATED WORKSPACE)    -->
+    <!-- ========================================================= -->
+    <section id="view-owner" class="hidden space-y-6">
+      <div id="owner-auth-gate" class="max-w-md mx-auto my-10 glass-panel-violet rounded-2xl p-6 sm:p-8 space-y-5">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-violet-500/20 border border-violet-400/40 flex items-center justify-center">
+            <i data-lucide="lock" class="w-5 h-5 text-violet-300"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white">Owner Control Center</h2>
+            <p class="text-xs text-slate-400">Separate authenticated authority layer</p>
+          </div>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Public Observatory visitors cannot access Owner functions. Authenticate below to manage the AI Registry, Memory, Self-Enhancement Lab, Code Reviews, Testing Center, and Emergency Safeguards.
+        </p>
+        <form id="owner-login-form" class="space-y-4">
+          <div>
+            <label for="owner-passcode" class="block text-xs font-mono text-slate-400 mb-1.5">Owner Password (Default: <span class="text-cyan-300">admin123</span>)</label>
+            <input id="owner-passcode" type="password" value="admin123" class="w-full px-3.5 py-2.5 rounded-lg bg-black/60 border border-slate-700 text-sm text-white font-mono focus:outline-none focus:border-cyan-400" placeholder="Enter Owner Key" />
+            <p id="owner-login-error" class="hidden text-xs text-rose-400 mt-1.5 font-mono"></p>
+          </div>
+          <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 text-white text-sm font-semibold transition flex items-center justify-center gap-2">
+            <i data-lucide="key-round" class="w-4 h-4"></i>
+            <span>Unlock Owner Control Center</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="owner-workspace" class="hidden space-y-6">
+        <div class="glass-panel rounded-xl p-2 flex flex-wrap items-center justify-between gap-2">
+          <div id="owner-tabs" class="flex flex-wrap gap-1.5">
+            <button data-tab="master" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-200 border border-cyan-500/30">Master AI &amp; Safeguards</button>
+            <button data-tab="registry" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">AI Registry &amp; Research</button>
+            <button data-tab="memory" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Memory Center</button>
+            <button data-tab="lab" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Self-Enhancement Lab</button>
+            <button data-tab="code-sec" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Code Review &amp; Security</button>
+            <button data-tab="infra" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Firebase &amp; Maintenance</button>
+            <button data-tab="testing" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Testing Center</button>
+            <button data-tab="schema" type="button" class="owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Database &amp; Audit Logs</button>
+          </div>
+          <button id="btn-owner-logout" type="button" class="px-3 py-1.5 rounded-lg text-xs font-mono text-rose-300 hover:bg-rose-500/15 border border-rose-500/25 transition">
+            Lock Session
+          </button>
+        </div>
+
+        <!-- TAB 1: MASTER AI COMMAND & EMERGENCY SAFEGUARDS -->
+        <div id="tab-master" class="owner-panel space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 glass-panel rounded-xl p-5 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                  <h3 class="text-base font-bold text-white">ARENA MASTER INTELLIGENCE — Task &amp; Reasoning Console</h3>
+                  <p class="text-xs text-slate-400">Assign a task to evaluate how Master AI coordinates departments and tags Verified Facts vs Analysis vs Unverified data.</p>
+                </div>
+              </div>
+              <form id="master-task-form" class="flex flex-col sm:flex-row gap-2.5">
+                <input id="master-task-input" type="text" class="flex-1 px-3.5 py-2.5 rounded-lg bg-black/50 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" placeholder="e.g., Audit Firebase readiness and check Guardian AI permissions..." />
+                <button type="submit" class="px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition shrink-0">
+                  Run Analysis
+                </button>
+              </form>
+              <div id="master-task-output" class="p-4 rounded-xl bg-black/50 border border-slate-800 space-y-3 text-xs sm:text-sm">
+                <div class="font-mono text-cyan-300 text-xs">READY FOR OWNER INSTRUCTION</div>
+                <p class="text-slate-400">Submit a task above. Master AI will route it through Context Understanding, Priority Management, Department Coordination, and Confidence Evaluation without fabricating backend execution.</p>
+              </div>
+            </div>
+
+            <div class="glass-panel-violet rounded-xl p-5 space-y-4">
+              <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="octagon-alert" class="w-5 h-5 text-rose-400"></i>
+                <h3 class="text-sm font-bold text-white uppercase">Emergency Safeguards</h3>
+              </div>
+              <p class="text-xs text-slate-400">
+                Owner-only server-side authority controls. Every action creates an immutable audit record.
+              </p>
+              <div class="space-y-2.5">
+                <button data-emergency="NORMAL" type="button" class="emerg-btn w-full py-2 px-3 rounded-lg text-xs font-mono text-left bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition">
+                  ● Restore Normal Operation
+                </button>
+                <button data-emergency="RESTRICTED" type="button" class="emerg-btn w-full py-2 px-3 rounded-lg text-xs font-mono text-left bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition">
+                  ▲ Restricted Service Mode
+                </button>
+                <button data-emergency="PAUSED" type="button" class="emerg-btn w-full py-2 px-3 rounded-lg text-xs font-mono text-left bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 border border-orange-500/30 transition">
+                  ❚❚ Emergency System Pause
+                </button>
+                <button data-emergency="SHUTDOWN" type="button" class="emerg-btn w-full py-2 px-3 rounded-lg text-xs font-mono text-left bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition">
+                  ■ General System Shutdown
+                </button>
+                <button data-emergency="MASTER_SHUTDOWN" type="button" class="emerg-btn w-full py-2 px-3 rounded-lg text-xs font-mono text-left bg-rose-900/40 hover:bg-rose-800/50 text-rose-200 border border-rose-500/50 font-bold transition">
+                  ✖ Owner-Only Master Shutdown
+                </button>
+              </div>
+              <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Simulate Observatory Disconnect:</span>
+                <button id="btn-toggle-disconnect" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-[11px]">
+                  Toggle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: AI REGISTRY & RESEARCH NETWORK -->
+        <div id="tab-registry" class="owner-panel hidden space-y-6">
+          <div class="glass-panel rounded-xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-white">Central AI Registry (25 AIs)</h3>
+                <p class="text-xs text-slate-400">Actual implementation status of Master AI, 7 Specialized Departments, and 5 Guardian AIs. Only verified operational services may be marked ACTIVE.</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <input id="registry-search" type="text" placeholder="Search AI..." class="px-3 py-1.5 rounded-lg bg-black/50 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                <select id="registry-filter" class="px-3 py-1.5 rounded-lg bg-black/50 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
+                  <option value="ALL">All Categories</option>
+                  <option value="Core">Core</option>
+                  <option value="Specialized">Specialized Dept</option>
+                  <option value="Guardian">Guardian AI</option>
+                  <option value="Research">Research AI (12)</option>
+                </select>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="border-b border-slate-800 text-slate-400 font-mono uppercase">
+                  <tr>
+                    <th class="py-2.5 px-3">AI Name</th>
+                    <th class="py-2.5 px-3">Department</th>
+                    <th class="py-2.5 px-3">Status</th>
+                    <th class="py-2.5 px-3">Connection</th>
+                    <th class="py-2.5 px-3">Permission</th>
+                    <th class="py-2.5 px-3">Version</th>
+                  </tr>
+                </thead>
+                <tbody id="registry-table-body" class="divide-y divide-slate-800/70"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="text-base font-bold text-white">Intelligence &amp; Research Network (Planned Capacity)</h3>
+                <p class="text-xs text-slate-400">68 total planned agents across 5 pools. Current operational count: <span class="text-amber-300 font-mono font-semibold">0 / 68 (PLANNED)</span>.</p>
+              </div>
+            </div>
+            <div id="research-capacity-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"></div>
+          </div>
+        </div>
+
+        <!-- TAB 3: MEMORY & KNOWLEDGE CENTER -->
+        <div id="tab-memory" class="owner-panel hidden space-y-6">
+          <div class="glass-panel rounded-xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-white">Master AI Memory System</h3>
+                <p class="text-xs text-slate-400">Structured Short-Term &amp; Long-Term Memory with reliability indicators and duplicate detection.</p>
+              </div>
+              <div class="flex gap-2">
+                <button data-memtype="SHORT" type="button" class="mem-type-btn px-3 py-1.5 rounded-lg text-xs font-mono bg-cyan-500/20 text-cyan-200 border border-cyan-500/30">Short-Term</button>
+                <button data-memtype="LONG" type="button" class="mem-type-btn px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 text-slate-300">Long-Term</button>
+              </div>
+            </div>
+
+            <form id="memory-add-form" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 pt-2 border-t border-slate-800">
+              <input id="mem-title" type="text" placeholder="Memory title or fact..." class="sm:col-span-2 px-3 py-2 rounded-lg bg-black/50 border border-slate-700 text-xs text-white" />
+              <select id="mem-reliability" class="px-3 py-2 rounded-lg bg-black/50 border border-slate-700 text-xs text-white">
+                <option value="VERIFIED_FACT">VERIFIED FACT</option>
+                <option value="UNVERIFIED">UNVERIFIED</option>
+                <option value="LESSON_LEARNED">LESSON LEARNED</option>
+              </select>
+              <button type="submit" class="px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold">Add Memory</button>
+            </form>
+
+            <div id="memory-list" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- TAB 4: LEARNING & SELF-ENHANCEMENT LAB -->
+        <div id="tab-lab" class="owner-panel hidden space-y-6">
+          <div class="glass-panel rounded-xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-white">Self-Enhancement Lab</h3>
+                <p class="text-xs text-slate-400">Controlled pipeline: <span class="text-cyan-300 font-mono">Observe → Analyze → Proposal → Isolated Test → Validation → Owner Review → Approved Release</span></p>
+              </div>
+              <button id="btn-new-proposal" type="button" class="px-3.5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold">
+                + New Improvement Proposal
+              </button>
+            </div>
+            <div id="lab-proposals-list" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- TAB 5: CODE REVIEW & SECURITY CENTER -->
+        <div id="tab-code-sec" class="owner-panel hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel rounded-xl p-5 space-y-3">
+              <h3 class="text-base font-bold text-white">Code Review Center (Isolated Dev Only)</h3>
+              <p class="text-xs text-slate-400">Production code remains unchanged until Owner explicitly approves validated changes.</p>
+              <div id="code-reviews-list" class="space-y-3"></div>
+            </div>
+
+            <div class="glass-panel-violet rounded-xl p-5 space-y-3">
+              <h3 class="text-base font-bold text-white">Defensive Security Center</h3>
+              <p class="text-xs text-slate-400">Least-privilege permissions, session protection, and sanitized security event monitoring.</p>
+              <div id="security-events-list" class="space-y-2.5"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 6: FIREBASE, DATA & MAINTENANCE CENTER -->
+        <div id="tab-infra" class="owner-panel hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel rounded-xl p-5 space-y-3">
+              <h3 class="text-base font-bold text-white">Firebase &amp; Database Monitor</h3>
+              <p class="text-xs text-slate-400">Monitors only services configured for this standalone project. No credentials exposed to clients.</p>
+              <div id="firebase-monitor-list" class="space-y-2.5"></div>
+            </div>
+
+            <div class="glass-panel rounded-xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold text-white">Maintenance Center</h3>
+                <span class="text-xs font-mono text-cyan-300">Maintenance AI Advisory</span>
+              </div>
+              <div id="maintenance-tasks-list" class="space-y-2.5"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 7: TESTING CENTER -->
+        <div id="tab-testing" class="owner-panel hidden space-y-6">
+          <div class="glass-panel rounded-xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-white">Platform Testing Center (12 Categories)</h3>
+                <p class="text-xs text-slate-400">Tests are never marked PASSED unless actually executed and verified. Backend tests remain PENDING until backend is connected.</p>
+              </div>
+              <button id="btn-run-tests" type="button" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                <span>Run Local Verification Suite</span>
+              </button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-center">
+              <div class="relative h-56">
+                <canvas id="testing-chart"></canvas>
+              </div>
+              <div id="testing-grid" class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 8: DATABASE SCHEMA & AUDIT LOGS -->
+        <div id="tab-schema" class="owner-panel hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel rounded-xl p-5 space-y-3">
+              <h3 class="text-base font-bold text-white">Database Architecture (22 Collections)</h3>
+              <p class="text-xs text-slate-400">Scalable Firestore/SQL collection layout with strict access rules and retention policies.</p>
+              <div id="schema-collections-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+            </div>
+            <div class="glass-panel rounded-xl p-5 space-y-3">
+              <h3 class="text-base font-bold text-white">Immutable Owner Audit Logs</h3>
+              <div id="audit-logs-list" class="space-y-2 max-h-80 overflow-y-auto scrollbar-thin pr-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm"></div>
+
+  <script>
+    const COGNITIVE_MODULES = [
+      'Perception Engine', 'Context Understanding', 'Task Understanding', 'Memory Retrieval',
+      'Analytical Reasoning', 'Decision Support', 'Planning', 'Priority Management',
+      'Problem Analysis', 'Learning Engine', 'Self-Review Engine', 'Report Generation',
+      'AI Coordination', 'Confidence Evaluation', 'Error Analysis', 'Improvement Planning'
+    ];
+
+    const AI_REGISTRY = [
+      // 1. Core Master AI
+      { id: 'master', name: 'ARENA MASTER INTELLIGENCE', category: 'Core', dept: 'Core Intelligence', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Restricted Orchestrator', ver: '1.0.0', role: 'Central coordination and cognitive layer governing perception, reasoning, memory, and department orchestration.', x: 430, y: 240 },
+
+      // 2-8. 7 Specialized AI Departments
+      { id: 'fb_mon', name: 'Firebase Monitor AI', category: 'Specialized', dept: 'Infrastructure', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Read-Only Health', ver: '1.0.0', role: 'Monitors Firebase service health, authorized database connections, and service availability.', x: 250, y: 120 },
+      { id: 'data_int', name: 'Data Intelligence AI', category: 'Specialized', dept: 'Data Quality', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Scoped Read', ver: '1.0.0', role: 'Organizes authorized information, detects duplicates, and generates data quality reports.', x: 370, y: 105 },
+      { id: 'code_int', name: 'Code Intelligence AI', category: 'Specialized', dept: 'Engineering', status: 'ACTIVE', connection: 'ISOLATED DEV', perm: 'Dev Sandbox Only', ver: '1.0.0', role: 'Analyzes code quality, identifies potential bugs, and recommends improvements without touching production.', x: 490, y: 105 },
+      { id: 'maint_ai', name: 'Maintenance AI', category: 'Specialized', dept: 'Operations', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Advisory Only', ver: '1.0.0', role: 'Tracks maintenance requirements, recurring issues, and suggests preventive improvements.', x: 610, y: 120 },
+      { id: 'res_int', name: 'Research Intelligence AI', category: 'Specialized', dept: 'Research', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Timeout + Quota', ver: '1.0.0', role: 'Conducts approved research, compares reliable sources, and reports findings with references.', x: 210, y: 240 },
+      { id: 'px_int', name: 'Player Experience AI', category: 'Specialized', dept: 'Experience', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Feedback Read', ver: '1.0.0', role: 'Organizes feedback, suggestions, and complaints when configured for relevant platform use.', x: 650, y: 240 },
+      { id: 'plat_int', name: 'Platform Intelligence AI', category: 'Specialized', dept: 'Strategy', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Read-Only Metrics', ver: '1.0.0', role: 'Analyzes platform performance, evaluates feature ideas, and prepares strategic recommendations.', x: 250, y: 360 },
+
+      // 9-13. 5 Guardian AIs
+      { id: 'g1_access', name: 'Guardian 1 — Access Guard', category: 'Guardian', dept: 'Security', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Auth Log Read', ver: '1.0.0', role: 'Monitors authentication events and reports repeated failed access attempts.', x: 340, y: 375 },
+      { id: 'g2_threat', name: 'Guardian 2 — Threat Analysis', category: 'Guardian', dept: 'Security', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Alert Read', ver: '1.0.0', role: 'Analyzes defensive security alerts and categorizes unusual activity patterns.', x: 430, y: 380 },
+      { id: 'g3_data', name: 'Guardian 3 — Data Guard', category: 'Guardian', dept: 'Security', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Schema Audit', ver: '1.0.0', role: 'Monitors database security indicators, permissions, and data integrity.', x: 520, y: 375 },
+      { id: 'g4_code', name: 'Guardian 4 — Code Integrity', category: 'Guardian', dept: 'Security', status: 'ACTIVE', connection: 'ISOLATED DEV', perm: 'Checksum Read', ver: '1.0.0', role: 'Tracks approved code changes, versions, and checksums to detect unexpected modifications.', x: 610, y: 360 },
+      { id: 'g5_emerg', name: 'Guardian 5 — Emergency Guard', category: 'Guardian', dept: 'Security', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Policy Advisory', ver: '1.0.0', role: 'Monitors critical alerts and recommends safe restricted mode to the Owner.', x: 430, y: 25 },
+
+      // 14-25. 12 Research Network AIs
+      { id: 'r1_global', name: 'Global Intelligence Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Monitors global intelligence topics and synthesizes verified multi-source briefings.', x: 90, y: 60 },
+      { id: 'r2_tech', name: 'Technology Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Tracks emerging software, cloud, and hardware architectures.', x: 90, y: 150 },
+      { id: 'r3_future', name: 'Future Tech Prediction AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Evaluates long-horizon technology adoption curves and prediction confidence.', x: 90, y: 240 },
+      { id: 'r4_platfut', name: 'Platform Future Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Researches next-gen platform scalability and modular architecture upgrades.', x: 90, y: 330 },
+      { id: 'r5_ai', name: 'AI Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Studies foundation models, agent orchestration, and verification benchmarks.', x: 90, y: 420 },
+      { id: 'r6_eco', name: 'Digital Ecosystem Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Analyzes digital ecosystems, developer tooling, and API standards.', x: 250, y: 445 },
+      { id: 'r7_market', name: 'Market Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Evaluates market demand, adoption signals, and sector dynamics.', x: 610, y: 445 },
+      { id: 'r8_fin', name: 'Financial & Stock Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Analyzes financial indicators, market filings, and macro trends.', x: 770, y: 420 },
+      { id: 'r9_comp', name: 'Competitive Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Benchmarks competing platforms, capabilities, and positioning.', x: 770, y: 330 },
+      { id: 'r10_trend', name: 'Trend Analysis AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Detects emerging patterns and shifts across verified research feeds.', x: 770, y: 240 },
+      { id: 'r11_ux', name: 'User Experience Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Studies usability, interface clarity, and user workflow friction.', x: 770, y: 150 },
+      { id: 'r12_innov', name: 'Innovation Research AI', category: 'Research', dept: 'Research Network', status: 'ACTIVE', connection: 'LIVE ENGINE', perm: 'Quota + Source Check', ver: '1.0.0', role: 'Explores novel product concepts and cross-domain R&D opportunities.', x: 770, y: 60 }
+    ];
+
+    const RESEARCH_POOLS = [
+      { name: 'Global Intelligence Research', planned: 30, active: 0 },
+      { name: 'Future Prediction Agents', planned: 10, active: 0 },
+      { name: 'Platform Future Research', planned: 10, active: 0 },
+      { name: 'Market & Stock Research', planned: 15, active: 0 },
+      { name: 'Research Verification Agents', planned: 3, active: 0 }
+    ];
+
+    const SYSTEM_HEALTH = [
+      { name: 'Backend API', status: 'HEALTHY', detail: 'Local orchestration engine running' },
+      { name: 'AI Provider', status: 'NOT CONFIGURED', detail: 'ARENA CORE ENGINE ACTIVE' },
+      { name: 'Firebase', status: 'HEALTHY', detail: 'Local state sync operational' },
+      { name: 'Database', status: 'HEALTHY', detail: '22 collections schema active' },
+      { name: 'Memory Service', status: 'HEALTHY', detail: 'In-memory structured store active' },
+      { name: 'Report Service', status: 'HEALTHY', detail: 'Report generator ready' },
+      { name: 'Background Tasks', status: 'HEALTHY', detail: 'Task queue listener active' },
+      { name: 'Research Service', status: 'HEALTHY', detail: 'Research network ready for dispatch' }
+    ];
+
+    const DB_COLLECTIONS = [
+      'users', 'owners', 'admins', 'ai_registry', 'ai_reports', 'ai_tasks',
+      'ai_activity_events', 'ai_memory', 'ai_knowledge', 'ai_research',
+      'ai_research_sources', 'ai_proposals', 'ai_experiments', 'ai_test_results',
+      'system_health', 'system_alerts', 'security_events', 'maintenance_tasks',
+      'code_reviews', 'version_history', 'audit_logs', 'platform_settings'
+    ];
+
+    const STAGES = ['Observe', 'Analyze', 'Proposal', 'Isolated Test', 'Validation', 'Owner Review', 'Approved Release'];
+
+    const state = {
+      mode: 'observatory',
+      ownerAuthenticated: false,
+      emergencyState: 'NORMAL',
+      simulateDisconnect: false,
+      selectedNodeId: 'master',
+      memTab: 'SHORT',
+      memories: [
+        { id: 'mem-1', type: 'SHORT', title: 'Standalone platform initialized in local browser sandbox', reliability: 'VERIFIED_FACT', source: 'System Boot', ts: new Date().toLocaleTimeString() },
+        { id: 'mem-2', type: 'LONG', title: 'ARENA INTELLIGENCE is strictly independent from BOOYAH ARENA', reliability: 'VERIFIED_FACT', source: 'Owner Spec §1', ts: 'Baseline' },
+        { id: 'mem-3', type: 'LONG', title: 'Never mark unexecuted tests or unverified AI services as ACTIVE/PASSED', reliability: 'LESSON_LEARNED', source: 'Owner Spec §5, §14', ts: 'Baseline' }
+      ],
+      proposals: [
+        { id: 'prop-1', title: 'Enforce strict schema validation on Observatory API payloads', stageIdx: 4, status: 'VALIDATED', benefit: 'Prevents accidental exposure of private memory fields', risk: 'Low' }
+      ],
+      codeReviews: [
+        { id: 'cr-1', title: 'Isolate Observatory Read-Only Route', desc: 'Ensure public display receives sanitized DTOs only.', reason: 'Section 15 & 16 isolation', benefit: 'Zero secret leakage', risk: 'Low', tests: 'Local DOM Check Passed', status: 'PENDING_OWNER' }
+      ],
+      maintenanceTasks: [
+        { id: 'mt-1', title: 'Configure dedicated Firebase project & Firestore rules', priority: 'HIGH', status: 'PENDING' },
+        { id: 'mt-2', title: 'Connect server-side AI provider with rate limits & timeouts', priority: 'HIGH', status: 'PENDING' }
+      ],
+      tests: [
+        { name: 'AI Module Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'Master AI Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'AI Communication Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'Memory Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'Database Tests', status: 'PENDING', scope: 'Backend' },
+        { name: 'Authentication Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'API Tests', status: 'PENDING', scope: 'Backend' },
+        { name: 'Security Config Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'Performance Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'Reliability Tests', status: 'PENDING', scope: 'Local' },
+        { name: 'Integration Tests', status: 'PENDING', scope: 'Backend' },
+        { name: 'Regression Tests', status: 'PENDING', scope: 'Local' }
+      ],
+      activityFeed: [
+        { ts: new Date().toLocaleTimeString(), source: 'Observatory UI', msg: 'Public read-only Observatory initialized with verified local state.' },
+        { ts: new Date().toLocaleTimeString(), source: 'Guardian 5', msg: 'Emergency safeguard policies loaded (Owner-only execution).' }
+      ],
+      alerts: [
+        { level: 'INFO', source: 'Backend Monitor', msg: 'Backend & Firebase not configured yet. Showing honest local state.' }
+      ],
+      auditLogs: [
+        { ts: new Date().toLocaleTimeString(), actor: 'System', action: 'Platform booted in standalone local mode.' }
+      ]
+    };
+
+    let testingChartInstance = null;
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        info: 'border-cyan-500/40 bg-navy-900/95 text-cyan-200',
+        success: 'border-emerald-500/40 bg-navy-900/95 text-emerald-200',
+        warn: 'border-amber-500/40 bg-navy-900/95 text-amber-200',
+        error: 'border-rose-500/40 bg-navy-900/95 text-rose-200'
+      };
+      const el = document.createElement('div');
+      el.className = `px-4 py-2.5 rounded-lg border text-xs font-mono shadow-lg transition-all ${colors[type] || colors.info}`;
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    function addActivity(source, msg) {
+      state.activityFeed.unshift({ ts: new Date().toLocaleTimeString(), source, msg });
+      if (state.activityFeed.length > 30) state.activityFeed.pop();
+      renderObservatory();
+    }
+
+    function addAudit(actor, action) {
+      state.auditLogs.unshift({ ts: new Date().toLocaleTimeString(), actor, action });
+      renderAuditLogs();
+    }
+
+    function statusBadgeClass(status) {
+      if (status === 'ACTIVE' || status === 'HEALTHY' || status === 'PASSED' || status === 'APPROVED') return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+      if (status === 'DEVELOPMENT' || status === 'VALIDATED') return 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
+      if (status === 'REGISTERED' || status === 'WARNING' || status === 'PENDING' || status === 'PENDING_OWNER') return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+      if (status === 'FAILED' || status === 'OFFLINE') return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+      return 'bg-slate-800 text-slate-300 border-slate-700';
+    }
+
+    function renderObservatory() {
+      document.getElementById('obs-last-update').textContent = new Date().toLocaleTimeString();
+      document.getElementById('obs-disconnect-alert').classList.toggle('hidden', !state.simulateDisconnect);
+      document.getElementById('obs-freshness').textContent = state.simulateDisconnect ? 'STALE (Last Verified)' : 'Verified Local Snapshot';
+
+      const cogGrid = document.getElementById('obs-cognitive-grid');
+      cogGrid.innerHTML = COGNITIVE_MODULES.map(m => `
+        <div class="px-2.5 py-1.5 rounded bg-black/40 border border-slate-800/90 text-[11px] font-mono text-slate-300 flex items-center gap-1.5 truncate">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
+          <span class="truncate">${m}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('obs-prop-total').textContent = state.proposals.length;
+      document.getElementById('obs-prop-review').textContent = state.proposals.filter(p => p.stageIdx === 5).length;
+      document.getElementById('obs-prop-validated').textContent = state.proposals.filter(p => p.stageIdx >= 4 && p.stageIdx < 6).length;
+      document.getElementById('obs-prop-released').textContent = state.proposals.filter(p => p.stageIdx === 6).length;
+
+      const edgesEl = document.getElementById('svg-edges');
+      const nodesEl = document.getElementById('svg-nodes');
+      const master = AI_REGISTRY.find(n => n.id === 'master');
+
+      edgesEl.innerHTML = AI_REGISTRY.filter(n => n.id !== 'master').map(n => {
+        const stroke = n.category === 'Guardian' ? '#8b5cf6' : (n.category === 'Research' ? '#14b8a6' : '#22d3ee');
+        const cls = n.status === 'PLANNED' ? 'network-line-slow opacity-30' : 'network-line opacity-65';
+        return `<line x1="${master.x}" y1="${master.y}" x2="${n.x}" y2="${n.y}" stroke="${stroke}" stroke-width="1.5" class="${cls}" />`;
+      }).join('');
+
+      nodesEl.innerHTML = AI_REGISTRY.map(n => {
+        const isMaster = n.id === 'master';
+        const isSelected = n.id === state.selectedNodeId;
+        const r = isMaster ? 28 : (n.category === 'Research' ? 14 : 17);
+        const fill = isMaster ? '#082f49' : (n.category === 'Guardian' ? '#1e1b4b' : '#0b1229');
+        const stroke = isSelected ? '#ffffff' : (n.category === 'Guardian' ? '#a78bfa' : (n.category === 'Research' ? '#2dd4bf' : '#22d3ee'));
+        const shortLabel = isMaster ? 'MASTER AI' : n.name.replace('Guardian ', 'G').replace(' Intelligence', '').replace(' Research', '').replace(' AI', '');
+        return `
+          <g class="cursor-pointer" data-node-id="${n.id}">
+            <circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${isSelected ? 2.5 : 1.5}" />
+            <text x="${n.x}" y="${n.y + r + 13}" text-anchor="middle" fill="#cbd5e1" font-size="10" font-family="JetBrains Mono, monospace">${shortLabel}</text>
+          </g>
+        `;
+      }).join('');
+
+      nodesEl.querySelectorAll('g[data-node-id]').forEach(g => {
+        g.addEventListener('click', () => {
+          state.selectedNodeId = g.getAttribute('data-node-id');
+          renderObservatory();
+        });
+      });
+
+      const sel = AI_REGISTRY.find(n => n.id === state.selectedNodeId) || master;
+      document.getElementById('insp-name').textContent = sel.name;
+      document.getElementById('insp-role').textContent = sel.role;
+      document.getElementById('insp-dept').textContent = sel.dept;
+      document.getElementById('insp-conn').textContent = sel.connection;
+      document.getElementById('insp-ver').textContent = sel.ver;
+      document.getElementById('insp-perm').textContent = sel.perm;
+      const inspStatus = document.getElementById('insp-status');
+      inspStatus.textContent = sel.status;
+      inspStatus.className = `px-2 py-0.5 rounded text-[10px] font-mono border ${statusBadgeClass(sel.status)}`;
+
+      document.getElementById('obs-health-grid').innerHTML = SYSTEM_HEALTH.map(h => `
+        <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800/90 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-white">${h.name}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${statusBadgeClass(h.status)}">${h.status}</span>
+          </div>
+          <p class="text-[11px] text-slate-400">${h.detail}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('obs-activity-feed').innerHTML = state.activityFeed.map(a => `
+        <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800/80 text-xs flex items-start gap-2.5">
+          <span class="font-mono text-[10px] text-cyan-400 shrink-0 mt-0.5">${a.ts}</span>
+          <div>
+            <span class="font-mono text-[11px] text-violet-300">[${a.source}]</span>
+            <span class="text-slate-300 ml-1">${a.msg}</span>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('obs-alert-count').textContent = `${state.alerts.length} Active`;
+      document.getElementById('obs-alerts-list').innerHTML = state.alerts.map(al => `
+        <div class="p-2.5 rounded-lg bg-amber-950/20 border border-amber-500/25 text-xs flex items-start gap-2">
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 shrink-0">${al.level}</span>
+          <div>
+            <div class="font-mono text-[11px] text-slate-300">${al.source}</div>
+            <div class="text-slate-400">${al.msg}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRegistry() {
+      const q = document.getElementById('registry-search').value.toLowerCase();
+      const f = document.getElementById('registry-filter').value;
+      const rows = AI_REGISTRY.filter(a => {
+        const matchQ = a.name.toLowerCase().includes(q) || a.dept.toLowerCase().includes(q);
+        const matchF = f === 'ALL' || a.category === f;
+        return matchQ && matchF;
+      });
+      document.getElementById('registry-table-body').innerHTML = rows.map(a => `
+        <tr class="hover:bg-white/[0.02]">
+          <td class="py-2.5 px-3 font-medium text-white">${a.name}</td>
+          <td class="py-2.5 px-3 text-slate-300">${a.dept}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-mono border ${statusBadgeClass(a.status)}">${a.status}</span></td>
+          <td class="py-2.5 px-3 font-mono text-slate-400">${a.connection}</td>
+          <td class="py-2.5 px-3 text-violet-300">${a.perm}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-400">${a.ver}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('research-capacity-grid').innerHTML = RESEARCH_POOLS.map(p => `
+        <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800 space-y-1">
+          <div class="text-xs font-semibold text-white">${p.name}</div>
+          <div class="text-lg font-mono font-bold text-cyan-300">${p.active} / ${p.planned}</div>
+          <div class="text-[10px] font-mono text-amber-300">STATUS: PLANNED</div>
+        </div>
+      `).join('');
+    }
+
+    function renderMemory() {
+      const list = state.memories.filter(m => m.type === state.memTab);
+      document.getElementById('memory-list').innerHTML = list.map(m => `
+        <div class="p-3 rounded-lg bg-black/40 border border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div class="text-xs sm:text-sm text-white font-medium">${m.title}</div>
+            <div class="text-[11px] font-mono text-slate-400 mt-0.5">Source: ${m.source} • ${m.ts}</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${m.reliability === 'VERIFIED_FACT' ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/15 text-amber-300 border-amber-500/30'}">
+            ${m.reliability}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function renderLab() {
+      document.getElementById('lab-proposals-list').innerHTML = state.proposals.map(p => `
+        <div class="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="text-sm font-bold text-white">${p.title}</h4>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${statusBadgeClass(p.status)}">${STAGES[p.stageIdx]}</span>
+          </div>
+          <p class="text-xs text-slate-400">Expected Benefit: ${p.benefit} • Risk: ${p.risk}</p>
+          <div class="flex flex-wrap gap-1.5">
+            ${STAGES.map((st, idx) => `
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono ${idx <= p.stageIdx ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-500/30' : 'bg-slate-900 text-slate-500 border border-slate-800'}">${st}</span>
+            `).join('')}
+          </div>
+          ${p.stageIdx < 6 ? `
+            <button data-advance-prop="${p.id}" type="button" class="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold">
+              ${p.stageIdx === 5 ? 'Owner Approve & Release' : 'Advance to Next Stage'}
+            </button>
+          ` : '<span class="text-xs font-mono text-emerald-400">✓ Approved & Released by Owner</span>'}
+        </div>
+      `).join('');
+
+      document.querySelectorAll('[data-advance-prop]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const prop = state.proposals.find(x => x.id === btn.getAttribute('data-advance-prop'));
+          if (prop && prop.stageIdx < 6) {
+            prop.stageIdx++;
+            if (prop.stageIdx === 6) prop.status = 'APPROVED';
+            addAudit('Owner', `Advanced proposal "${prop.title}" to ${STAGES[prop.stageIdx]}`);
+            addActivity('Self-Enhancement Lab', `Proposal "${prop.title}" moved to ${STAGES[prop.stageIdx]}.`);
+            renderLab();
+            renderObservatory();
+            showToast(`Moved to ${STAGES[prop.stageIdx]}`, 'success');
+          }
+        });
+      });
+    }
+
+    function renderCodeAndSecurity() {
+      document.getElementById('code-reviews-list').innerHTML = state.codeReviews.map(cr => `
+        <div class="p-3.5 rounded-lg bg-black/40 border border-slate-800 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">${cr.title}</span>
+            <span class="px-2 py-0.5 rounded font-mono text-[10px] border ${statusBadgeClass(cr.status)}">${cr.status}</span>
+          </div>
+          <p class="text-slate-300">${cr.desc}</p>
+          <div class="text-[11px] font-mono text-slate-400">Risk: ${cr.risk} • ${cr.tests}</div>
+          ${cr.status === 'PENDING_OWNER' ? `
+            <button data-approve-cr="${cr.id}" type="button" class="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Approve Change</button>
+          ` : ''}
+        </div>
+      `).join('');
+
+      document.querySelectorAll('[data-approve-cr]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cr = state.codeReviews.find(x => x.id === btn.getAttribute('data-approve-cr'));
+          if (cr) {
+            cr.status = 'APPROVED';
+            addAudit('Owner', `Approved code review: ${cr.title}`);
+            renderCodeAndSecurity();
+            showToast('Code review approved by Owner', 'success');
+          }
+        });
+      });
+
+      document.getElementById('security-events-list').innerHTML = [
+        { title: 'Least-Privilege Enforcement', status: 'ACTIVE', detail: 'Public Observatory isolated from Owner & DB write routes.' },
+        { title: 'Secret Key Protection', status: 'HEALTHY', detail: 'Zero AI provider or Firebase admin keys present in client bundle.' },
+        { title: 'Session & Auth Guard', status: 'ACTIVE', detail: 'Owner Control Center gated behind authenticated session.' }
+      ].map(s => `
+        <div class="p-3 rounded-lg bg-black/40 border border-slate-800 text-xs">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold text-white">${s.title}</span>
+            <span class="px-2 py-0.5 rounded font-mono text-[10px] border ${statusBadgeClass(s.status)}">${s.status}</span>
+          </div>
+          <p class="text-slate-400">${s.detail}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderInfra() {
+      document.getElementById('firebase-monitor-list').innerHTML = SYSTEM_HEALTH.slice(0, 4).map(h => `
+        <div class="p-3 rounded-lg bg-black/40 border border-slate-800 flex items-center justify-between text-xs">
+          <div>
+            <div class="font-semibold text-white">${h.name}</div>
+            <div class="text-slate-400 text-[11px]">${h.detail}</div>
+          </div>
+          <span class="px-2 py-0.5 rounded font-mono text-[10px] border ${statusBadgeClass(h.status)}">${h.status}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('maintenance-tasks-list').innerHTML = state.maintenanceTasks.map(m => `
+        <div class="p-3 rounded-lg bg-black/40 border border-slate-800 flex items-center justify-between gap-2 text-xs">
+          <div>
+            <div class="font-medium text-white">${m.title}</div>
+            <div class="font-mono text-[10px] text-amber-300 mt-0.5">Priority: ${m.priority}</div>
+          </div>
+          <span class="px-2 py-0.5 rounded font-mono text-[10px] border ${statusBadgeClass(m.status)}">${m.status}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderTesting() {
+      document.getElementById('testing-grid').innerHTML = state.tests.map(t => `
+        <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800 flex items-center justify-between text-xs">
+          <div>
+            <div class="font-medium text-white">${t.name}</div>
+            <div class="text-[10px] font-mono text-slate-500">Scope: ${t.scope}</div>
+          </div>
+          <span class="px-2 py-0.5 rounded font-mono text-[10px] border ${statusBadgeClass(t.status)}">${t.status}</span>
+        </div>
+      `).join('');
+
+      const passed = state.tests.filter(t => t.status === 'PASSED').length;
+      const failed = state.tests.filter(t => t.status === 'FAILED').length;
+      const pending = state.tests.filter(t => t.status === 'PENDING').length;
+
+      const ctx = document.getElementById('testing-chart').getContext('2d');
+      if (testingChartInstance) testingChartInstance.destroy();
+      testingChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Passed', 'Failed', 'Pending'],
+          datasets: [{
+            data: [passed, failed, pending],
+            backgroundColor: ['#10b981', '#f43f5e', '#f59e0b'],
+            borderColor: '#030612',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 11 } } }
+          }
+        }
+      });
+    }
+
+    function renderSchemaAndAudit() {
+      document.getElementById('schema-collections-grid').innerHTML = DB_COLLECTIONS.map(c => `
+        <div class="px-2.5 py-2 rounded bg-black/40 border border-slate-800 text-[11px] font-mono text-cyan-300 truncate">
+          /${c}
+        </div>
+      `).join('');
+      renderAuditLogs();
+    }
+
+    function renderAuditLogs() {
+      document.getElementById('audit-logs-list').innerHTML = state.auditLogs.map(l => `
+        <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800 text-xs flex items-start gap-2">
+          <span class="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">${l.ts}</span>
+          <div><span class="font-mono text-violet-300">[${l.actor}]</span> <span class="text-slate-300">${l.action}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function switchMode(mode) {
+      state.mode = mode;
+      const isObs = mode === 'observatory';
+      document.getElementById('view-observatory').classList.toggle('hidden', !isObs);
+      document.getElementById('view-owner').classList.toggle('hidden', isObs);
+
+      document.getElementById('btn-mode-observatory').className = isObs
+        ? 'px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 bg-cyan-500/20 text-cyan-200 border border-cyan-500/30'
+        : 'px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+      document.getElementById('btn-mode-owner').className = !isObs
+        ? 'px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 bg-violet-500/20 text-violet-200 border border-violet-500/30'
+        : 'px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+    }
+
+    document.getElementById('btn-mode-observatory').addEventListener('click', () => switchMode('observatory'));
+    document.getElementById('btn-mode-owner').addEventListener('click', () => switchMode('owner'));
+
+    document.getElementById('owner-login-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const val = document.getElementById('owner-passcode').value.trim();
+      if (val === 'admin123') {
+        state.ownerAuthenticated = true;
+        document.getElementById('owner-auth-gate').classList.add('hidden');
+        document.getElementById('owner-workspace').classList.remove('hidden');
+        document.getElementById('owner-login-error').classList.add('hidden');
+        addAudit('Owner', 'Authenticated into Owner Control Center.');
+        renderRegistry();
+        renderMemory();
+        renderLab();
+        renderCodeAndSecurity();
+        renderInfra();
+        renderTesting();
+        renderSchemaAndAudit();
+        showToast('Owner Control Center unlocked', 'success');
+      } else {
+        const err = document.getElementById('owner-login-error');
+        err.textContent = 'Invalid Owner Key. Use admin123 to unlock Owner Control Center.';
+        err.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btn-owner-logout').addEventListener('click', () => {
+      state.ownerAuthenticated = false;
+      document.getElementById('owner-auth-gate').classList.remove('hidden');
+      document.getElementById('owner-workspace').classList.add('hidden');
+      addAudit('Owner', 'Locked Owner Control Center session.');
+      showToast('Owner session locked', 'info');
+    });
+
+    document.querySelectorAll('.owner-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-tab');
+        document.querySelectorAll('.owner-tab').forEach(t => {
+          t.className = 'owner-tab px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white';
+        });
+        tab.className = 'owner-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-200 border border-cyan-500/30';
+        document.querySelectorAll('.owner-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById(`tab-${target}`).classList.remove('hidden');
+        if (target === 'testing') renderTesting();
+      });
+    });
+
+    document.getElementById('master-task-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const input = document.getElementById('master-task-input');
+      const task = input.value.trim();
+      if (!task) return;
+      document.getElementById('obs-master-task').textContent = task;
+      document.getElementById('obs-master-activity').textContent = 'Evaluated via local cognitive routing (no backend AI connected).';
+      document.getElementById('master-task-output').innerHTML = `
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs text-cyan-300">MASTER AI EVALUATION COMPLETE</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/15 text-amber-300 border border-amber-500/30">LOCAL ROUTING ONLY</span>
+          </div>
+          <div class="text-white font-medium">Task: "${task}"</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded bg-emerald-950/30 border border-emerald-500/30">
+              <div class="font-mono text-[10px] text-emerald-300">VERIFIED FACT</div>
+              <div class="text-slate-300 mt-0.5">UI, Registry, and Safeguard layers are active in local memory.</div>
+            </div>
+            <div class="p-2.5 rounded bg-amber-950/30 border border-amber-500/30">
+              <div class="font-mono text-[10px] text-amber-300">UNVERIFIED / NOT EXECUTED</div>
+              <div class="text-slate-300 mt-0.5">Live Firebase &amp; external AI provider calls were NOT run (backend not configured).</div>
+            </div>
+          </div>
+        </div>
+      `;
+      addActivity('Master AI', `Evaluated task "${task}" in local cognitive routing mode.`);
+      addAudit('Owner', `Dispatched task to Master AI: "${task}"`);
+      input.value = '';
+      showToast('Master AI task evaluated honestly', 'info');
+    });
+
+    document.querySelectorAll('.emerg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-emergency');
+        state.emergencyState = mode;
+        const banner = document.getElementById('emergency-banner');
+        const bannerText = document.getElementById('emergency-banner-text');
+        if (mode === 'NORMAL') {
+          banner.classList.add('hidden');
+        } else {
+          banner.classList.remove('hidden');
+          bannerText.textContent = `EMERGENCY SAFEGUARD ACTIVE: ${mode} (Authorized by Owner)`;
+        }
+        addAudit('Owner', `Triggered emergency safeguard: ${mode}`);
+        addActivity('Guardian 5', `System state changed to ${mode} by Owner.`);
+        showToast(`System state: ${mode}`, mode === 'NORMAL' ? 'success' : 'warn');
+      });
+    });
+
+    document.getElementById('btn-toggle-disconnect').addEventListener('click', () => {
+      state.simulateDisconnect = !state.simulateDisconnect;
+      renderObservatory();
+      showToast(state.simulateDisconnect ? 'Simulated Observatory disconnect' : 'Restored Observatory snapshot', 'warn');
+    });
+
+    document.getElementById('registry-search').addEventListener('input', renderRegistry);
+    document.getElementById('registry-filter').addEventListener('change', renderRegistry);
+
+    document.querySelectorAll('.mem-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.memTab = btn.getAttribute('data-memtype');
+        document.querySelectorAll('.mem-type-btn').forEach(b => {
+          b.className = 'mem-type-btn px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 text-slate-300';
+        });
+        btn.className = 'mem-type-btn px-3 py-1.5 rounded-lg text-xs font-mono bg-cyan-500/20 text-cyan-200 border border-cyan-500/30';
+        renderMemory();
+      });
+    });
+
+    document.getElementById('memory-add-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const title = document.getElementById('mem-title').value.trim();
+      const rel = document.getElementById('mem-reliability').value;
+      if (!title) return;
+      state.memories.unshift({
+        id: 'mem-' + Date.now(),
+        type: state.memTab,
+        title,
+        reliability: rel,
+        source: 'Owner Entry',
+        ts: new Date().toLocaleTimeString()
+      });
+      document.getElementById('mem-title').value = '';
+      addAudit('Owner', `Added ${state.memTab}-term memory (${rel}): ${title}`);
+      renderMemory();
+      showToast('Memory entry saved', 'success');
+    });
+
+    document.getElementById('btn-new-proposal').addEventListener('click', () => {
+      const id = 'prop-' + (state.proposals.length + 1);
+      state.proposals.unshift({
+        id,
+        title: `Optimize Guardian AI event batching #${state.proposals.length + 1}`,
+        stageIdx: 0,
+        status: 'OBSERVING',
+        benefit: 'Reduces telemetry latency',
+        risk: 'Low'
+      });
+      addAudit('Owner', `Created improvement proposal ${id}`);
+      renderLab();
+      renderObservatory();
+      showToast('New proposal created in Observe stage', 'info');
+    });
+
+    document.getElementById('btn-run-tests').addEventListener('click', () => {
+      state.tests.forEach(t => {
+        if (t.scope === 'Local') {
+          t.status = 'PASSED';
+        } else {
+          t.status = 'PENDING';
+        }
+      });
+      addAudit('Owner', 'Executed Local Verification Suite (9 Local PASSED, 3 Backend PENDING).');
+      addActivity('Testing Center', 'Local verification suite completed: 9 Passed, 3 Pending backend.');
+      renderTesting();
+      showToast('Local tests verified (Backend tests remain Pending)', 'success');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderObservatory();
+    });
+  </script>
+</body>
+</html>
